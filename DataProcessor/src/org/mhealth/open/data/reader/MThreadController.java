@@ -9,25 +9,35 @@ public class MThreadController {
 
     private CountDownLatch startupLatch;
     private CountDownLatch shutdownLatch;
+    private CountDownLatch completeLatch;
 
-    MThreadController(){
+    MThreadController() {
         startupLatch = new CountDownLatch(0);
         shutdownLatch = new CountDownLatch(0);
+        completeLatch = new CountDownLatch(0);
     }
 
     protected void setStartupLatch(CountDownLatch startupLatch) {
         this.startupLatch = startupLatch;
     }
 
-    protected void setShutdownLatch(CountDownLatch shutdownLatch){
+    protected void setShutdownLatch(CountDownLatch shutdownLatch) {
         this.shutdownLatch = shutdownLatch;
     }
 
-    public void waitForThreadsStartup() throws InterruptedException{
+    protected void setCompleteLatch(CountDownLatch completeLatch) {
+        this.completeLatch = completeLatch;
+    }
+
+    public void waitForThreadsStartup() throws InterruptedException {
         startupLatch.await();
     }
 
     public void waitForThreadsShutdown() throws InterruptedException {
         shutdownLatch.await();
+    }
+
+    public void waitForThreadsWorkDown() throws InterruptedException {
+        completeLatch.await();
     }
 }

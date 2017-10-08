@@ -1,18 +1,14 @@
 package org.mhealth.open.data.reader.test;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mhealth.open.data.reader.MDataReader;
-import org.mhealth.open.data.reader.MFileReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.*;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * MFileReader Tester.
@@ -95,5 +91,23 @@ public class MFileReaderTest {
                 .getJSONObject("effective_time_frame")
                 .getDate("date_time");
         System.out.println(date);
+    }
+
+    @Test
+    public void testProperties(){
+        ClassLoader classLoader = MFileReaderTest.class.getClassLoader();
+        InputStream resource_in = classLoader.getResourceAsStream("conf.properties");
+        Properties prop = new Properties();
+        try {
+            prop.load(resource_in);
+            String dataRootPath = prop.getProperty("dataRootPath");
+            long readingIntervalMillis = Long.valueOf(prop.getProperty("readingIntervalMillis"));
+            Class<?> readerClass = Class.forName(prop.getProperty("readerClassName"));
+            System.out.println(dataRootPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 } 

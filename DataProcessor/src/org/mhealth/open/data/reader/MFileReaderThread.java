@@ -7,11 +7,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -21,14 +19,21 @@ public class MFileReaderThread extends AbstractMThread {
     private File userGroupDir;
     private Map<String, Queue> queueMaps;
 
+
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
+    private Map<String, Boolean> tags = new HashMap<>();
     private boolean end = false;
     private int finishFileCount = 0;
+    private AtomicBoolean blocking = new AtomicBoolean(false);
 
-    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch shutdownLatch, File userGroupDir, Map<String, Queue> queueMaps) {
-        super(startupLatch, shutdownLatch);
+    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, Queue> queueMaps) {
+        super(startupLatch, readCompleteLatch);
         this.userGroupDir = userGroupDir;
         this.queueMaps = queueMaps;
+
+        // 先设置为全真
+        Set<String> measureNames = ConfigurationSetting.measures.keySet();
+        measureNames.forEach(name -> tags.put(name, true));
     }
 
     private void readUserGroupDataInQueue() throws InterruptedException {
@@ -57,6 +62,12 @@ public class MFileReaderThread extends AbstractMThread {
                 // 获取文件对应的起始offset指针
                 long startOffset;
                 String offsetKey = userName + "-" + measureName;
+
+                // 如果这次读取数据文件是不允许读此测量值文件的，则跳过此次读取
+                if(!tags.get(measureName))
+                    continue;
+
+                // 获取上一次读取文件的指针位置
                 if (!fileOffsetRecorder.containsKey(offsetKey)) {
                     startOffset = 0L;
                     fileOffsetRecorder.put(offsetKey, 0L);
@@ -74,7 +85,7 @@ public class MFileReaderThread extends AbstractMThread {
                     raf.seek(startOffset);
                     String record = null;
                     long nextStartOffset = startOffset;
-                    int frequency = ConfigurationSetting.readingFrequency.get(measureName);
+                    int frequency = ConfigurationSetting.measures.get(measureName).getReadingFrequency();
                     for (int i = 0; i < frequency && (record = raf.readLine()) != null; i++) {
 
                         // 这里应该有对应record的处理过程, 这里会有两种处理方式
@@ -108,9 +119,12 @@ public class MFileReaderThread extends AbstractMThread {
 
         // 测试一下
         System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
+        System.out.print("本次成功读取的文件有:");
 
-        // 休息指定时间
-        Thread.sleep(ConfigurationSetting.readingIntervalMillis);
+        tags.forEach((s, b) -> {
+            if(b)
+                System.out.println(s);
+        });
 
     }
 
@@ -118,6 +132,11 @@ public class MFileReaderThread extends AbstractMThread {
         return end;
     }
 
+    // 设置tags并将阻塞状态置为false
+    public void setTags(Map<String, Boolean> tags) {
+        this.tags = tags;
+        blocking.compareAndSet(true, false);
+    }
 
     @Override
     public void run() {
@@ -125,8 +144,21 @@ public class MFileReaderThread extends AbstractMThread {
 
         //每次都将用户组目录下的数据读入队列中
         try {
-            while(!isEnd())
+            while(!isEnd()) {
+
+                while(blocking.get())
+                    // 休息指定时间
+                    Thread.sleep(ConfigurationSetting.readingIntervalMillis);
+
+                // 将用户数据读取到队列当中
                 readUserGroupDataInQueue();
+
+                // 当读取完毕后解锁
+                workComplete();
+
+                blocking.compareAndSet(false, true);
+
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

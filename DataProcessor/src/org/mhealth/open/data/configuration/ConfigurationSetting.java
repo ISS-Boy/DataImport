@@ -2,11 +2,11 @@ package org.mhealth.open.data.configuration;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.mhealth.open.data.reader.MDataReader;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -15,23 +15,65 @@ import java.util.concurrent.PriorityBlockingQueue;
  * 这个类之后会被改装成通过配置文件读入
  */
 public class ConfigurationSetting {
-    public static final String dataRootPath = "/Users/dujijun/Documents/大数据相关/数据生成/data";
-    public static final long readingIntervalMillis = 5 * 60 * 1000;
-    public static final Map<String, Integer> readingFrequency = new HashMap<>();
+    // 数据导入的路径
+    public static final String dataRootPath;
+
+    // 读取的时间间隔, 今后不使用指定间隔读取数据方法
+    @Deprecated
+    public static final long readingIntervalMillis;
+
+    // 队列最大长度
+    public static final int maxQueueSize;
+
+    // 数据读取器的类
+    public static final Class<? extends MDataReader> readerClass;
+
+    // 包装所有和度量相关配置项
+    public static final Map<String, MeasureConfiguration> measures = new HashMap<>();
 
     static {
-        readingFrequency.put("blood-pressure", 5);
-        readingFrequency.put("body-fat-percentage", 1);
-        readingFrequency.put("body-weight", 1);
-        readingFrequency.put("heart-rate", 5);
+        // 读入properties
+        ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();
+        InputStream resource_in = classLoader.getResourceAsStream("conf.properties");
+        Properties prop = new Properties();
+
+        // 读入相应的数据
+
+        String tmpDataRootPath = null;
+        long tmpReadingIntervalMillis = 0l;
+        int tmpMaxQueueSize = 0;
+        Class tmpReaderClass = null;
+        try {
+            prop.load(resource_in);
+            tmpDataRootPath = prop.getProperty("dataRootPath");
+            tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("readingIntervalMillis"));
+            tmpMaxQueueSize = Integer.valueOf(prop.getProperty("maxQueueSize"));
+            tmpReaderClass = Class.forName(prop.getProperty("readerClassName"));
+            // 这里开始读入measure相关配置项
+            String[] measureNames = prop.getProperty("measureNames").split(",");
+            for(String name: measureNames){
+                int readingFrequency = Integer.valueOf(prop.getProperty(name + ".readingFrequency"));
+                float queueImportThreshold = Float.valueOf(prop.getProperty(name + ".queueImportThreshold"));
+                measures.put(name, new MeasureConfiguration(name, readingFrequency, queueImportThreshold));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        dataRootPath = tmpDataRootPath;
+        readingIntervalMillis = tmpReadingIntervalMillis;
+        maxQueueSize = tmpMaxQueueSize;
+        readerClass = tmpReaderClass;
     }
 
     public static Map<String, Queue> getSimpleContainer() {
         Map<String, Queue> queueMaps = new HashMap<>();
-        queueMaps.put("blood-pressure", new PriorityBlockingQueue<String>(1024, ConfigurationSetting::compareRecord));
-        queueMaps.put("body-fat-percentage", new PriorityBlockingQueue<String>(1024, ConfigurationSetting::compareRecord));
-        queueMaps.put("body-weight", new PriorityBlockingQueue<String>(1024, ConfigurationSetting::compareRecord));
-        queueMaps.put("heart-rate", new PriorityBlockingQueue<String>(1024, ConfigurationSetting::compareRecord));
+        Set<String> measureNames = measures.keySet();
+        measureNames.forEach(name ->
+            queueMaps.put(name,
+                    new PriorityBlockingQueue<String>(maxQueueSize, ConfigurationSetting::compareRecord))
+        );
         return queueMaps;
     }
 

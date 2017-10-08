@@ -17,10 +17,14 @@ public class MFileReader extends MThreadController implements MDataReader {
 
     /** 需要改进到从配置文件中读入 */
     private String dataRootPath = ConfigurationSetting.dataRootPath;
-    private List<Thread> readers;
+    private List<MFileReaderThread> readers;
 
     public MFileReader(){
         readers = new ArrayList<>();
+    }
+
+    public List<MFileReaderThread> getReaderThreads(){
+        return readers;
     }
 
     @Override
@@ -33,16 +37,28 @@ public class MFileReader extends MThreadController implements MDataReader {
 
         // 初始化闭锁
         CountDownLatch startupThreadsLatch = new CountDownLatch(userGroups.length);
-        CountDownLatch shutdownThreadsLatch = new CountDownLatch(userGroups.length);
+        CountDownLatch readCompleteLatch = new CountDownLatch(userGroups.length);
 
         // 设置闭锁
         setStartupLatch(startupThreadsLatch);
-        setShutdownLatch(shutdownThreadsLatch);
+        setCompleteLatch(readCompleteLatch);
         for(File userGroup : userGroups){
-            MFileReaderThread reader = new MFileReaderThread(startupThreadsLatch, shutdownThreadsLatch, userGroup, queueMaps);
+            MFileReaderThread reader = new MFileReaderThread(startupThreadsLatch, readCompleteLatch, userGroup, queueMaps);
             Thread readThread = new Thread(reader);
-            readers.add(readThread);
+            readers.add(reader);
             readThread.start();
         }
+    }
+
+    public void setTagAndWaitupThreadsToReadData(Map<String, Boolean> tags){
+        readers.forEach(r -> r.setTags(tags));
+    }
+
+    public boolean isAllEnd(){
+        for(MFileReaderThread readerThread : readers){
+            if(!readerThread.isEnd())
+                return false;
+        }
+        return true;
     }
 }
