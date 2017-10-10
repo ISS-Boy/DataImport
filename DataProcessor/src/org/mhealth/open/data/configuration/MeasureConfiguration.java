@@ -7,11 +7,17 @@ public class MeasureConfiguration {
     private String measureName;
     private int readingFrequency;
     private float queueImportThreshold;
+    private int producerNums;
 
-    public MeasureConfiguration(String measureName, int readingFrequency, float queueImportThreshold) {
+    public MeasureConfiguration(String measureName, int readingFrequency, float queueImportThreshold, int producerNums) {
         this.measureName = measureName;
         this.readingFrequency = readingFrequency;
         this.queueImportThreshold = queueImportThreshold;
+        this.producerNums = producerNums;
+    }
+
+    public MeasureConfiguration(String measureName, int readingFrequency, float queueImportThreshold) {
+        this(measureName,readingFrequency,queueImportThreshold,1);
     }
 
     public MeasureConfiguration() {
@@ -39,6 +45,14 @@ public class MeasureConfiguration {
 
     public void setQueueImportThreshold(float queueImportThreshold) {
         this.queueImportThreshold = queueImportThreshold;
+    }
+
+    public int getProducerNums() {
+        return producerNums;
+    }
+
+    public void setProducerNums(int producerNums) {
+        this.producerNums = producerNums;
     }
 
     @Override

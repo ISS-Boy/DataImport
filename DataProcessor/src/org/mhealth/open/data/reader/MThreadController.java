@@ -11,7 +11,7 @@ public class MThreadController {
     private CountDownLatch shutdownLatch;
     private CountDownLatch completeLatch;
 
-    MThreadController() {
+    public MThreadController() {
         startupLatch = new CountDownLatch(0);
         shutdownLatch = new CountDownLatch(0);
         completeLatch = new CountDownLatch(0);

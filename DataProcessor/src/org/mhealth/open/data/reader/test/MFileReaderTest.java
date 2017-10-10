@@ -6,9 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.time.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
  * MFileReader Tester.
@@ -110,4 +117,53 @@ public class MFileReaderTest {
             e.printStackTrace();
         }
     }
+    @Test
+    public void testThreadShutDown(){
+        ExecutorService es = Executors.newCachedThreadPool();
+        for (int i = 0; i < 5; i++) {
+            final int j = i;
+            es.execute(()->{
+                System.out.println(j);
+                try {
+                    Thread.sleep(1000);
+                    System.out.println(j+"over");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        }
+        es.shutdown();
+        try {
+            es.awaitTermination(10L, TimeUnit.SECONDS);
+            System.out.println("over!");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void testClockMethod() throws InterruptedException {
+        Clock current = Clock.system(ZoneId.systemDefault());
+        Instant date = Instant.parse("2017-01-01T12:00:00Z");
+        Clock clock = Clock.offset(current,Duration.between(current.instant(),date));
+        System.out.println(current.instant().until(date, SECONDS));
+        System.out.println(date.until(current.instant(), SECONDS));
+        System.out.println(LocalDateTime.now());
+        System.out.println(clock.instant());
+        Thread.sleep(1000);
+        System.out.println(clock.instant());
+
+
+
+        System.out.println(current.instant());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(current.instant());
+        Clock self = Clock.offset(current, Duration.ofDays(-1));
+        System.out.println(self.instant());
+    }
+
 } 

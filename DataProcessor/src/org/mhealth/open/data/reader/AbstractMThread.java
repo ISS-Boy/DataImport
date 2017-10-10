@@ -23,7 +23,7 @@ public abstract class AbstractMThread implements Runnable {
         this(new CountDownLatch(0), new CountDownLatch(0), new CountDownLatch(0));
     }
 
-    AbstractMThread(CountDownLatch startupLatch){
+    public AbstractMThread(CountDownLatch startupLatch){
         this(startupLatch, new CountDownLatch(0), new CountDownLatch(0));
     }
 

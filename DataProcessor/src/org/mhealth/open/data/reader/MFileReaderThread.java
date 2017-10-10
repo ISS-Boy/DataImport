@@ -1,5 +1,6 @@
 package org.mhealth.open.data.reader;
 
+import com.alibaba.fastjson.JSON;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -7,9 +8,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.time.Instant;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -17,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MFileReaderThread extends AbstractMThread {
 
     private File userGroupDir;
-    private Map<String, Queue> queueMaps;
+    private Map<String, BlockingQueue> queueMaps;
 
 
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
@@ -26,7 +32,7 @@ public class MFileReaderThread extends AbstractMThread {
     private int finishFileCount = 0;
     private AtomicBoolean blocking = new AtomicBoolean(false);
 
-    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, Queue> queueMaps) {
+    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps) {
         super(startupLatch, readCompleteLatch);
         this.userGroupDir = userGroupDir;
         this.queueMaps = queueMaps;
@@ -91,8 +97,10 @@ public class MFileReaderThread extends AbstractMThread {
                         // 这里应该有对应record的处理过程, 这里会有两种处理方式
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
+                        MRecord mRecord = new MRecord(record,measureName);
 
-                        if (!measureQueue.offer(record)) {
+
+                        if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }
                     }
@@ -164,5 +172,18 @@ public class MFileReaderThread extends AbstractMThread {
         }
 
         shutdownComplete();
+    }
+
+    @Override
+    public void shutdownComplete() {
+
+        for (String measureName : ConfigurationSetting.measures.keySet()) {
+            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
+            for (int i = 0; i < producerNums; i++) {
+                queueMaps.forEach((s, q) -> q.offer(new MRecord("poisonPill", Instant.parse(ConfigurationSetting.endTime))));
+            }
+        }
+
+        super.shutdownComplete();
     }
 }

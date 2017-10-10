@@ -1,11 +1,14 @@
-package org.mhealth.open.data.reader;
+package org.mhealth.open.data.monitor;
 
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.MeasureConfiguration;
+import org.mhealth.open.data.reader.AbstractMThread;
+import org.mhealth.open.data.reader.MFileReader;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -13,10 +16,10 @@ import java.util.concurrent.CountDownLatch;
  */
 public class MMonitorThread extends AbstractMThread {
 
-    private final Map<String, Queue> queueMaps;
+    private final Map<String, BlockingQueue> queueMaps;
     private final MFileReader reader;
 
-    MMonitorThread(MFileReader reader, CountDownLatch startupLatch, Map<String, Queue> queueMaps){
+    MMonitorThread(MFileReader reader, CountDownLatch startupLatch, Map<String, BlockingQueue> queueMaps){
         super(startupLatch);
         this.queueMaps = queueMaps;
         this.reader = reader;
