@@ -17,24 +17,24 @@ import java.util.concurrent.ExecutionException;
  */
 public class MConsumerThread implements Runnable{
     private BlockingQueue queueMaps;
+    private MProducer producer;
 
-    public MConsumerThread(BlockingQueue queueMaps) {
+    public MConsumerThread(BlockingQueue queueMaps, MProducer producer) {
         this.queueMaps = queueMaps;
-
+        this.producer = producer;
     }
+
 
     @Override
     public void run() {
-//        Producer producer = initKafkaProducer();
         try{
             while(true){
                 MRecord record = (MRecord) queueMaps.take();
-                System.out.println("消费了数据"+record);
-//                sendToKafka(producer,new ProducerRecord<>(
-//                        record.getMeasureName(),
-//                        "user_id:"+record.getUserId()+",timestamp:"+record.getTimestamp(),record.getMsg()));
                 if(record.isPoisonPill())
                     break;
+                producer.produce2Dest(record);
+                System.out.println("消费了数据"+record);
+
             }
         }catch (InterruptedException e){
             e.printStackTrace();
@@ -42,18 +42,5 @@ public class MConsumerThread implements Runnable{
 
     }
 
-    public Producer<String ,String> initKafkaProducer(){
 
-        Producer<String,String> kafkaProducer = new KafkaProducer<>(ProducerSetting.props);
-        return kafkaProducer;
-
-    }
-    public void sendToKafka(Producer<String,String> producer,ProducerRecord<String,String> message) {
-        // non-blocking using Callback
-        producer.send(message,(RecordMetadata metadata, Exception e)->{
-            if(e != null)
-                e.printStackTrace();
-            System.out.println(("The offset of the record we just sent is: " + metadata.offset()));
-        });
-    }
 }

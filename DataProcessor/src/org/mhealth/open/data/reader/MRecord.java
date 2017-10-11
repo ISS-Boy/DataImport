@@ -14,14 +14,15 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  *
  * @author just on 2017/10/8.
  */
-public class MRecord implements Delayed{
+public class MRecord implements Delayed {
     private String msg;
     private Instant date;
     private String userId;
     private String measureName;
     private long timestamp;
-    
-    public MRecord(String msg,String measureName) {
+    private boolean poisonFlag;
+
+    public MRecord(String msg, String measureName) {
         this.msg = msg;
         this.measureName = measureName;
         date = JSON.parseObject(msg)
@@ -34,8 +35,9 @@ public class MRecord implements Delayed{
                 .getString("user_id");
         timestamp = System.currentTimeMillis();
     }
-    public MRecord(String poison,Instant date){
-        this.measureName = poison;
+
+    public MRecord(boolean flag, Instant date) {
+        this.poisonFlag = flag;
         this.date = date;
     }
 
@@ -59,30 +61,31 @@ public class MRecord implements Delayed{
         return timestamp;
     }
 
-    public boolean isPoisonPill(){
-        return measureName.equals("poisonPill");
+    public boolean isPoisonPill() {
+        return poisonFlag;
     }
+
     @Override
     public long getDelay(TimeUnit unit) {
-        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date,SECONDS),TimeUnit.SECONDS);
+        // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
+        // 延迟时间为负数或零时被取出
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, SECONDS), TimeUnit.SECONDS);
     }
 
     @Override
     public int compareTo(Delayed o) {
-        return (int)(this.getDelay(TimeUnit.SECONDS)-o.getDelay(TimeUnit.SECONDS));
+        // 比较延迟时间，值越大优先级越低
+        return (int) (this.getDelay(TimeUnit.SECONDS) - o.getDelay(TimeUnit.SECONDS));
     }
-//    @Override
-//    public int compareTo(MRecord o) {
-//        return (int)this.getDate().until(o.getDate(),SECONDS);
-//    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("DelayRecord[");
-        sb.append("msg:'").append(msg).append("'")
+//        sb.append("msg:'").append(msg).append("'")
+        sb.append("measure:").append(measureName)
                 .append(", date:").append(date)
                 .append(", user_id:").append(userId)
-                .append(", measure_name:").append(measureName)
+                .append(", timestamp:").append(timestamp)
                 .append("]");
         return sb.toString();
     }

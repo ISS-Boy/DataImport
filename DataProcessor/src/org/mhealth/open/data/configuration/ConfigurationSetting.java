@@ -39,7 +39,7 @@ public class ConfigurationSetting {
     // 时钟
     public static final Clock CLOCK;
 
-    //
+    // 终止时间->毒丸
     public static final String endTime;
     static {
         // 读入properties

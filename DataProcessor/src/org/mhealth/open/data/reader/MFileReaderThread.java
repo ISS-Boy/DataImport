@@ -1,6 +1,5 @@
 package org.mhealth.open.data.reader;
 
-import com.alibaba.fastjson.JSON;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -9,13 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -180,7 +177,7 @@ public class MFileReaderThread extends AbstractMThread {
         for (String measureName : ConfigurationSetting.measures.keySet()) {
             int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
             for (int i = 0; i < producerNums; i++) {
-                queueMaps.forEach((s, q) -> q.offer(new MRecord("poisonPill", Instant.parse(ConfigurationSetting.endTime))));
+                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.endTime))));
             }
         }
 

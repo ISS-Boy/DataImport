@@ -8,6 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * for DataImport
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MConsumer {
     private final Set<String> measures = ConfigurationSetting.measures.keySet();
-
+    public static AtomicInteger written = new AtomicInteger(0);
     public void consumeData(Map<String,BlockingQueue> queueMaps){
 
         ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -25,12 +26,17 @@ public class MConsumer {
 
             int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
             for (int i = 0; i < producerNums; i++) {
-                threadPool.execute(new MConsumerThread(queueMaps.get(measureName)));
+                // 指定数据发送到kafka终端
+//                MProducer producer = new MKafkaProducer();
+                MProducer producer = new MFileProducer(measureName);
+
+                threadPool.execute(new MConsumerThread(queueMaps.get(measureName),producer));
             }
 
         }
-        // from javadoc:This method does not wait for previously submitted tasks to complete execution.
+        // 顺序执行已提交任务，不再接受新任务.
         threadPool.shutdown();
+        System.out.println(written);
         try {
             // 任务执行结束或时间到期时关闭
             threadPool.awaitTermination(7L, TimeUnit.DAYS);
