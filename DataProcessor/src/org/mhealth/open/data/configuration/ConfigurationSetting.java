@@ -21,17 +21,16 @@ import java.util.concurrent.DelayQueue;
  */
 public class ConfigurationSetting {
     // 数据导入的路径
-    public static final String dataRootPath;
+    public static final String DATA_ROOT_PATH;
 
-    // 读取的时间间隔, 今后不使用指定间隔读取数据方法
-    @Deprecated
-    public static final long readingIntervalMillis;
+    // 判断线程是否应该阻塞的时间间隔
+    public static final long BLOCK_WAIT_TIME;
 
     // 队列最大长度
-    public static final int maxQueueSize;
+    public static final int MAX_QUEUE_SIZE;
 
     // 数据读取器的类
-    public static final Class<? extends MDataReader> readerClass;
+    public static final Class<? extends MDataReader> READER_CLASS;
 
     // 包装所有和度量相关配置项
     public static final Map<String, MeasureConfiguration> measures = new HashMap<>();
@@ -40,7 +39,7 @@ public class ConfigurationSetting {
     public static final Clock CLOCK;
 
     // 终止时间->毒丸
-    public static final String endTime;
+    public static final String END_TIME;
     static {
         // 读入properties
         ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();
@@ -56,10 +55,10 @@ public class ConfigurationSetting {
         String tmpStartTime=null,tmpEndTime = null;
         try {
             prop.load(resource_in);
-            tmpDataRootPath = prop.getProperty("dataRootPath");
-            tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("readingIntervalMillis"));
-            tmpMaxQueueSize = Integer.valueOf(prop.getProperty("maxQueueSize"));
-            tmpReaderClass = Class.forName(prop.getProperty("readerClassName"));
+            tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
+            tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
+            tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
+            tmpReaderClass = Class.forName(prop.getProperty("READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
             // 这里开始读入measure相关配置项
@@ -75,13 +74,13 @@ public class ConfigurationSetting {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        dataRootPath = tmpDataRootPath;
-        readingIntervalMillis = tmpReadingIntervalMillis;
-        maxQueueSize = tmpMaxQueueSize;
-        readerClass = tmpReaderClass;
+        DATA_ROOT_PATH = tmpDataRootPath;
+        BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
+        MAX_QUEUE_SIZE = tmpMaxQueueSize;
+        READER_CLASS = tmpReaderClass;
         Clock baseClock = Clock.systemUTC();
         CLOCK = Clock.offset(baseClock, Duration.between(baseClock.instant(), Instant.parse(tmpStartTime)));
-        endTime = tmpEndTime;
+        END_TIME = tmpEndTime;
     }
 
     public static Map<String, BlockingQueue> getSimpleContainer() {

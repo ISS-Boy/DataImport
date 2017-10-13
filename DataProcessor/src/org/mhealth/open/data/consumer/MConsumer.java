@@ -36,12 +36,14 @@ public class MConsumer {
         }
         // 顺序执行已提交任务，不再接受新任务.
         threadPool.shutdown();
-        System.out.println(written);
+
+        // 任务执行结束或时间到期时关闭
         try {
-            // 任务执行结束或时间到期时关闭
             threadPool.awaitTermination(7L, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally{
+            System.out.println(written);
         }
     }
 }

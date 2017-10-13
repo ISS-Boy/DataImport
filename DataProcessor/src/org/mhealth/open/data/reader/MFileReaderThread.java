@@ -153,7 +153,7 @@ public class MFileReaderThread extends AbstractMThread {
 
                 while(blocking.get())
                     // 休息指定时间
-                    Thread.sleep(ConfigurationSetting.readingIntervalMillis);
+                    Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
                 // 将用户数据读取到队列当中
                 readUserGroupDataInQueue();
@@ -177,7 +177,7 @@ public class MFileReaderThread extends AbstractMThread {
         for (String measureName : ConfigurationSetting.measures.keySet()) {
             int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
             for (int i = 0; i < producerNums; i++) {
-                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.endTime))));
+                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
             }
         }
 

@@ -106,9 +106,9 @@ public class MFileReaderTest {
         Properties prop = new Properties();
         try {
             prop.load(resource_in);
-            String dataRootPath = prop.getProperty("dataRootPath");
-            long readingIntervalMillis = Long.valueOf(prop.getProperty("readingIntervalMillis"));
-            Class<?> readerClass = Class.forName(prop.getProperty("readerClassName"));
+            String dataRootPath = prop.getProperty("DATA_ROOT_PATH");
+            long readingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
+            Class<?> readerClass = Class.forName(prop.getProperty("READER_CLASS_NAME"));
             System.out.println(dataRootPath);
         } catch (IOException e) {
             e.printStackTrace();

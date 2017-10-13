@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -19,7 +18,7 @@ public class MFileReader extends MThreadController implements MDataReader {
     /**
      * 需要改进到从配置文件中读入
      */
-    private String dataRootPath = ConfigurationSetting.dataRootPath;
+    private String dataRootPath = ConfigurationSetting.DATA_ROOT_PATH;
     private List<MFileReaderThread> readers;
 
     public MFileReader() {

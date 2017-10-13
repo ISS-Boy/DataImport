@@ -57,7 +57,7 @@ public class Application {
     // 开启读数据进程并等待
     private static MDataReader startupReaderThreadsAndWait(Map<String, BlockingQueue> queueMaps) throws InterruptedException {
         MDataReaderFactory factory = new MDataReaderFactory();
-        MDataReader reader = factory.getReader(ConfigurationSetting.readerClass);
+        MDataReader reader = factory.getReader(ConfigurationSetting.READER_CLASS);
         reader.readDataInQueue(queueMaps);
 
         // 真正开启reader

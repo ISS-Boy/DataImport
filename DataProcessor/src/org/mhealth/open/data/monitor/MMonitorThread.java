@@ -7,7 +7,6 @@ import org.mhealth.open.data.reader.MFileReader;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -55,7 +54,7 @@ public class MMonitorThread extends AbstractMThread {
 
             queueMaps.forEach((s, v) -> {
                 float currentSize = v.size();
-                float rate = currentSize / ConfigurationSetting.maxQueueSize;
+                float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
                 // 当目前元素的比率小于阈值时，则判断需要导入数据
                 needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
             });
