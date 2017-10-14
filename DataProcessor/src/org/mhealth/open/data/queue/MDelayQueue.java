@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MDelayQueue<E extends java.util.concurrent.Delayed> extends DelayQueue<E>{
     private int totalPoisonCount;
-    private AtomicInteger poisonNumNow;
+    private AtomicInteger poisonNumNow = new AtomicInteger(0);
 
     public int getTotalPoisonCount() {
         return totalPoisonCount;
