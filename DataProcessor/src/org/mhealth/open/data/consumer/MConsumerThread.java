@@ -31,8 +31,8 @@ public class MConsumerThread implements Runnable{
                 // 如果毒丸吃够了就跳出
                 if(measureQueue.enoughPoisonPill())
                     break;
-                producer.produce2Dest(record);
-                System.out.println("消费了数据"+record);
+                // producer.produce2Dest(record);
+                System.out.println("消费了数据" + record + ", 现在是队列中有" + measureQueue.size() + "条数据, 现在是第" + measureQueue.getAndIncrement());
 
             }
         }catch (InterruptedException e){

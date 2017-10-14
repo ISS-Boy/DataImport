@@ -17,15 +17,15 @@ public class MThreadController {
         completeLatch = new CountDownLatch(0);
     }
 
-    protected void setStartupLatch(CountDownLatch startupLatch) {
+    public void setStartupLatch(CountDownLatch startupLatch) {
         this.startupLatch = startupLatch;
     }
 
-    protected void setShutdownLatch(CountDownLatch shutdownLatch) {
+    public void setShutdownLatch(CountDownLatch shutdownLatch) {
         this.shutdownLatch = shutdownLatch;
     }
 
-    protected void setCompleteLatch(CountDownLatch completeLatch) {
+    public void setCompleteLatch(CountDownLatch completeLatch) {
         this.completeLatch = completeLatch;
     }
 

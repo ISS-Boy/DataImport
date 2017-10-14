@@ -41,6 +41,9 @@ public class ConfigurationSetting {
 
     // 终止时间->毒丸
     public static final String END_TIME;
+
+    // 用于记录reader的个数
+    public static volatile int readerCount;
     static {
         // 读入properties
         ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();
@@ -48,7 +51,6 @@ public class ConfigurationSetting {
         Properties prop = new Properties();
 
         // 读入相应的数据
-
         String tmpDataRootPath = null;
         long tmpReadingIntervalMillis = 0l;
         int tmpMaxQueueSize = 0;

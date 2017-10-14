@@ -38,8 +38,8 @@ public class MFileReader extends MThreadController implements MDataReader {
 
         File[] userGroups = rootDir.listFiles(File::isDirectory);
 
-        //设置毒丸个数，有多少个用户组就有多少个线程
-        queueMaps.forEach((s, q) -> ((MDelayQueue)q).setTotalPoisonCount(userGroups.length));
+        // 设置全局读取线程个数，它用来判断设置毒丸结束，还可以用来计算一轮读取完毕锁
+        ConfigurationSetting.readerCount = userGroups.length;
 
         // 初始化闭锁
         CountDownLatch startupThreadsLatch = new CountDownLatch(userGroups.length);
@@ -71,5 +71,10 @@ public class MFileReader extends MThreadController implements MDataReader {
                 return false;
         }
         return true;
+    }
+
+
+    public void resetCompleteLatchs(CountDownLatch completeLatch) {
+        readers.forEach(t -> t.resetCompleteLatch(completeLatch));
     }
 }

@@ -10,7 +10,7 @@ public abstract class AbstractMThread implements Runnable {
 
     //开启线程闭锁
     private final CountDownLatch startupLatch;
-    private final CountDownLatch completeLatch;
+    private volatile CountDownLatch completeLatch;
     private final CountDownLatch shutdownLatch;
 
     public AbstractMThread(CountDownLatch startupLatch, CountDownLatch completeLatch, CountDownLatch shutdownLatch) {
@@ -33,17 +33,22 @@ public abstract class AbstractMThread implements Runnable {
 
     //完全启动线程
     public void startupComplete() {
-        startupLatch.countDown();
+        this.startupLatch.countDown();
     }
 
     // 准备完全关闭线程
     public void shutdownComplete() {
-        shutdownLatch.countDown();
+        this.shutdownLatch.countDown();
     }
 
     // 准备一齐完成某些动作
     public void workComplete(){
-        completeLatch.countDown();
+        this.completeLatch.countDown();
+    }
+
+    // 重新重置锁
+    public void resetCompleteLatch(CountDownLatch completeLatch){
+        this.completeLatch = completeLatch;
     }
 
 }

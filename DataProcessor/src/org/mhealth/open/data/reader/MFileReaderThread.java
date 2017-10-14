@@ -67,7 +67,7 @@ public class MFileReaderThread extends AbstractMThread {
                 String offsetKey = userName + "-" + measureName;
 
                 // 如果这次读取数据文件是不允许读此测量值文件的，则跳过此次读取
-                if(!tags.get(measureName))
+                if (!tags.get(measureName))
                     continue;
 
                 // 获取上一次读取文件的指针位置
@@ -94,7 +94,7 @@ public class MFileReaderThread extends AbstractMThread {
                         // 这里应该有对应record的处理过程, 这里会有两种处理方式
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
-                        MRecord mRecord = new MRecord(record,measureName);
+                        MRecord mRecord = new MRecord(record, measureName);
 
 
                         if (!measureQueue.offer(mRecord)) {
@@ -127,7 +127,7 @@ public class MFileReaderThread extends AbstractMThread {
         System.out.print("本次成功读取的文件有:");
 
         tags.forEach((s, b) -> {
-            if(b)
+            if (b)
                 System.out.println(s);
         });
 
@@ -149,9 +149,9 @@ public class MFileReaderThread extends AbstractMThread {
 
         //每次都将用户组目录下的数据读入队列中
         try {
-            while(!isEnd()) {
+            while (!isEnd()) {
 
-                while(blocking.get())
+                while (blocking.get())
                     // 休息指定时间
                     Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
@@ -175,10 +175,12 @@ public class MFileReaderThread extends AbstractMThread {
     public void shutdownComplete() {
 
         for (String measureName : ConfigurationSetting.measures.keySet()) {
-            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
-            for (int i = 0; i < producerNums; i++) {
-                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
-            }
+//            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
+//            for (int i = 0; i < producerNums; i++) {
+//                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
+//            }
+            queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
+
         }
 
         super.shutdownComplete();
