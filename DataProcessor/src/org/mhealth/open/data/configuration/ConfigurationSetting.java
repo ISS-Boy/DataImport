@@ -2,6 +2,7 @@ package org.mhealth.open.data.configuration;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.mhealth.open.data.queue.MDelayQueue;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MRecord;
 
@@ -88,7 +89,7 @@ public class ConfigurationSetting {
         Set<String> measureNames = measures.keySet();
         measureNames.forEach(name ->
                 queueMaps.put(name,
-                        new DelayQueue<MRecord>())
+                        new MDelayQueue<MRecord>())
         );
         return queueMaps;
     }

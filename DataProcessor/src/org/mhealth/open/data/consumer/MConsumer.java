@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MConsumer {
     private final Set<String> measures = ConfigurationSetting.measures.keySet();
     public static AtomicInteger written = new AtomicInteger(0);
-    public void consumeData(Map<String,BlockingQueue> queueMaps){
+
+    public void consumeData(Map<String, BlockingQueue> queueMaps) {
 
         ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -30,7 +31,7 @@ public class MConsumer {
 //                MProducer producer = new MKafkaProducer();
                 MProducer producer = new MFileProducer(measureName);
 
-                threadPool.execute(new MConsumerThread(queueMaps.get(measureName),producer));
+                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
             }
 
         }
@@ -42,7 +43,7 @@ public class MConsumer {
             threadPool.awaitTermination(7L, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally{
+        } finally {
             System.out.println(written);
         }
     }

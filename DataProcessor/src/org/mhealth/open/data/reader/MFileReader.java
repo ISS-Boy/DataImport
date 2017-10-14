@@ -2,6 +2,7 @@ package org.mhealth.open.data.reader;
 
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.InValidPathException;
+import org.mhealth.open.data.queue.MDelayQueue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class MFileReader extends MThreadController implements MDataReader {
             throw new InValidPathException("数据路径选取不合法，请重新选择路径");
 
         File[] userGroups = rootDir.listFiles(File::isDirectory);
+
+        //设置毒丸个数，有多少个用户组就有多少个线程
+        queueMaps.forEach((s, q) -> ((MDelayQueue)q).setTotalPoisonCount(userGroups.length));
 
         // 初始化闭锁
         CountDownLatch startupThreadsLatch = new CountDownLatch(userGroups.length);

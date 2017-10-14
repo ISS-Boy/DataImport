@@ -1,14 +1,9 @@
 package org.mhealth.open.data.consumer;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.mhealth.open.data.configuration.ProducerSetting;
+import org.mhealth.open.data.queue.MDelayQueue;
 import org.mhealth.open.data.reader.MRecord;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 
 /**
  * for DataImport
@@ -16,11 +11,11 @@ import java.util.concurrent.ExecutionException;
  * @author just on 2017/10/9.
  */
 public class MConsumerThread implements Runnable{
-    private BlockingQueue queueMaps;
+    private MDelayQueue measureQueue;
     private MProducer producer;
 
-    public MConsumerThread(BlockingQueue queueMaps, MProducer producer) {
-        this.queueMaps = queueMaps;
+    public MConsumerThread(BlockingQueue measureQueue, MProducer producer) {
+        this.measureQueue = (MDelayQueue) measureQueue;
         this.producer = producer;
     }
 
@@ -29,8 +24,12 @@ public class MConsumerThread implements Runnable{
     public void run() {
         try{
             while(true){
-                MRecord record = (MRecord) queueMaps.take();
+                MRecord record = (MRecord) measureQueue.take();
                 if(record.isPoisonPill())
+                    measureQueue.increasePoisonCount();
+
+                // 如果毒丸吃够了就跳出
+                if(measureQueue.enoughPoisonPill())
                     break;
                 producer.produce2Dest(record);
                 System.out.println("消费了数据"+record);
