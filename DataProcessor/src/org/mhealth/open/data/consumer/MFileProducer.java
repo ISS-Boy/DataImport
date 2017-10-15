@@ -1,5 +1,6 @@
 package org.mhealth.open.data.consumer;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.reader.MRecord;
 
 import java.io.BufferedWriter;
@@ -12,6 +13,7 @@ import java.io.IOException;
  * @author just on 2017/10/11.
  */
 public class MFileProducer implements MProducer {
+
     private BufferedWriter writer;
     public MFileProducer(String measureName) {
         try {

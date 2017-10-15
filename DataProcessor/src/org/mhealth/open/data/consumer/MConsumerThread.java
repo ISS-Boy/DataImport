@@ -1,5 +1,6 @@
 package org.mhealth.open.data.consumer;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.queue.MDelayQueue;
 import org.mhealth.open.data.reader.MRecord;
 
@@ -11,12 +12,21 @@ import java.util.concurrent.BlockingQueue;
  * @author just on 2017/10/9.
  */
 public class MConsumerThread implements Runnable{
+//    private static Logger loggerBP = LoggerFactory.getLogger("bloodPressure");
+//    private static Logger loggerHR = LoggerFactory.getLogger("heart");
+    private static Logger logger = Logger.getLogger(MConsumerThread.class);
+
     private MDelayQueue measureQueue;
     private MProducer producer;
+    private String measure;
+
 
     public MConsumerThread(BlockingQueue measureQueue, MProducer producer) {
         this.measureQueue = (MDelayQueue) measureQueue;
-        this.producer = producer;
+//        this.producer = producer;
+    }
+    public MConsumerThread(BlockingQueue measureQueue){
+        this.measureQueue = (MDelayQueue) measureQueue;
     }
 
 
@@ -31,12 +41,14 @@ public class MConsumerThread implements Runnable{
                 // 如果毒丸吃够了就跳出
                 if(measureQueue.enoughPoisonPill())
                     break;
-                producer.produce2Dest(record);
-                System.out.println("消费了数据"+record);
+                logger.info(record);
+                MConsumer.written.incrementAndGet();
+//                producer.produce2Dest(record);
 
             }
         }catch (InterruptedException e){
             e.printStackTrace();
+
         }
 
     }

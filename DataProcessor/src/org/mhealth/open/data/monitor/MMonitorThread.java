@@ -60,6 +60,7 @@ public class MMonitorThread extends AbstractMThread {
             });
 
             reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
+
         }
     }
 }

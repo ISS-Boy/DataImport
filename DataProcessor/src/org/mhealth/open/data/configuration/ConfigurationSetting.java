@@ -21,6 +21,7 @@ import java.util.concurrent.DelayQueue;
  * 这个类之后会被改装成通过配置文件读入
  */
 public class ConfigurationSetting {
+
     // 数据导入的路径
     public static final String DATA_ROOT_PATH;
 

@@ -1,6 +1,8 @@
 package org.mhealth.open.data.consumer;
 
 import org.mhealth.open.data.configuration.ConfigurationSetting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author just on 2017/10/10.
  */
 public class MConsumer {
+
+
+
     private final Set<String> measures = ConfigurationSetting.measures.keySet();
     public static AtomicInteger written = new AtomicInteger(0);
 
@@ -29,9 +34,10 @@ public class MConsumer {
             for (int i = 0; i < producerNums; i++) {
                 // 指定数据发送到kafka终端
 //                MProducer producer = new MKafkaProducer();
-                MProducer producer = new MFileProducer(measureName);
+//                MProducer producer = new MFileProducer(measureName);
 
-                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
+//                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
+                threadPool.execute(new MConsumerThread(queueMaps.get(measureName)));
             }
 
         }
