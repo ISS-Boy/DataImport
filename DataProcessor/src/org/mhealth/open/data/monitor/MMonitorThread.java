@@ -50,17 +50,26 @@ public class MMonitorThread extends AbstractMThread {
         while(!reader.isAllEnd()){
 
             // 等待读取完成之后
+            // , 这里应该需要阻塞一会
             reader.waitForThreadsWorkDown();
 
             queueMaps.forEach((s, v) -> {
                 float currentSize = v.size();
                 float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
+
                 // 当目前元素的比率小于阈值时，则判断需要导入数据
+                System.out.println(s + "队列中，容量比率为" + rate);
                 needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
             });
 
-            reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
+            // 重置完毕锁
+            CountDownLatch completeLatch = new CountDownLatch(reader.CURRENT_READER_COUNT.get());
+            reader.resetCompleteLatchs(completeLatch);
+            reader.setCompleteLatch(completeLatch);
 
+            // 设置需要读取tag
+            reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
+            Thread.sleep(1000);
         }
     }
 }

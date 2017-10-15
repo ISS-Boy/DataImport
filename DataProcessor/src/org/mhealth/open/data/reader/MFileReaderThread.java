@@ -1,6 +1,5 @@
 package org.mhealth.open.data.reader;
 
-import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -13,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -20,22 +20,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MFileReaderThread extends AbstractMThread {
 
-    private static Logger logger = Logger.getLogger(MFileReaderThread.class);
-
     private File userGroupDir;
     private Map<String, BlockingQueue> queueMaps;
 
-
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
     private Map<String, Boolean> tags = new HashMap<>();
+    private final AtomicInteger THREADS_COUNT;
     private boolean end = false;
     private int finishFileCount = 0;
-    private AtomicBoolean blocking = new AtomicBoolean(false);
+    private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
-    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps) {
+    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps, AtomicInteger THREADS_COUNT) {
         super(startupLatch, readCompleteLatch);
         this.userGroupDir = userGroupDir;
         this.queueMaps = queueMaps;
+        this.THREADS_COUNT = THREADS_COUNT;
 
         // 先设置为全真
         Set<String> measureNames = ConfigurationSetting.measures.keySet();
@@ -70,7 +69,7 @@ public class MFileReaderThread extends AbstractMThread {
                 String offsetKey = userName + "-" + measureName;
 
                 // 如果这次读取数据文件是不允许读此测量值文件的，则跳过此次读取
-                if(!tags.get(measureName))
+                if (!tags.get(measureName))
                     continue;
 
                 // 获取上一次读取文件的指针位置
@@ -97,7 +96,8 @@ public class MFileReaderThread extends AbstractMThread {
                         // 这里应该有对应record的处理过程, 这里会有两种处理方式
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
-                        MRecord mRecord = new MRecord(record,measureName);
+                        MRecord mRecord = new MRecord(record, measureName);
+
 
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
@@ -124,19 +124,14 @@ public class MFileReaderThread extends AbstractMThread {
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
 
-        tags.forEach((s,b)->{
-            if(b)
-                logger.info(userGroupDir.getName()+"成功读取文件"+s);
-        });
-
         // 测试一下
-//        System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
-//        System.out.print("本次成功读取的文件有:");
-//
-//        tags.forEach((s, b) -> {
-//            if(b)
-//                System.out.println(s);
-//        });
+        System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
+        System.out.print("本次成功读取的文件有:");
+
+        tags.forEach((s, b) -> {
+            if (b)
+                System.out.println(s);
+        });
 
     }
 
@@ -147,7 +142,7 @@ public class MFileReaderThread extends AbstractMThread {
     // 设置tags并将阻塞状态置为false
     public void setTags(Map<String, Boolean> tags) {
         this.tags = tags;
-        blocking.compareAndSet(true, false);
+        while (!blocking.compareAndSet(true, false)) ;
     }
 
     @Override
@@ -156,20 +151,27 @@ public class MFileReaderThread extends AbstractMThread {
 
         //每次都将用户组目录下的数据读入队列中
         try {
-            while(!isEnd()) {
+            while (true) {
 
-                while(blocking.get())
+                while (blocking.get())
                     // 休息指定时间
                     Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
                 // 将用户数据读取到队列当中
                 readUserGroupDataInQueue();
 
-                // 当读取完毕后解锁
-                workComplete();
+                synchronized (this.getCompleteLatch()) {
+                    // 当读取完毕后解锁
+                    workComplete();
 
-                blocking.compareAndSet(false, true);
+                    // 如果结束, 则将全局记录的Reader数量减一
+                    if (isEnd()) {
+                        this.THREADS_COUNT.getAndDecrement();
+                        break;
+                    }
+                }
 
+                while (!blocking.compareAndSet(false, true)) ;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -180,9 +182,12 @@ public class MFileReaderThread extends AbstractMThread {
 
     @Override
     public void shutdownComplete() {
-        // 每个队列都要放一个poisonPill
-        queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
-
+        queueMaps.forEach(
+                (s, q) -> {
+                    for(int i = 0; i < ConfigurationSetting.measures.get(s).getProducerNums(); i++)
+                        q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
+                    
+                });
         super.shutdownComplete();
     }
 }
