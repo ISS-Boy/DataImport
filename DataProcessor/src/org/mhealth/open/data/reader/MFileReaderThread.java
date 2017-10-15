@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -22,17 +23,18 @@ public class MFileReaderThread extends AbstractMThread {
     private File userGroupDir;
     private Map<String, BlockingQueue> queueMaps;
 
-
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
     private Map<String, Boolean> tags = new HashMap<>();
+    private final AtomicInteger THREADS_COUNT;
     private boolean end = false;
     private int finishFileCount = 0;
-    private AtomicBoolean blocking = new AtomicBoolean(false);
+    private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
-    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps) {
+    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps, AtomicInteger THREADS_COUNT) {
         super(startupLatch, readCompleteLatch);
         this.userGroupDir = userGroupDir;
         this.queueMaps = queueMaps;
+        this.THREADS_COUNT = THREADS_COUNT;
 
         // 先设置为全真
         Set<String> measureNames = ConfigurationSetting.measures.keySet();
@@ -140,7 +142,7 @@ public class MFileReaderThread extends AbstractMThread {
     // 设置tags并将阻塞状态置为false
     public void setTags(Map<String, Boolean> tags) {
         this.tags = tags;
-        blocking.compareAndSet(true, false);
+        while (!blocking.compareAndSet(true, false)) ;
     }
 
     @Override
@@ -149,7 +151,7 @@ public class MFileReaderThread extends AbstractMThread {
 
         //每次都将用户组目录下的数据读入队列中
         try {
-            while (!isEnd()) {
+            while (true) {
 
                 while (blocking.get())
                     // 休息指定时间
@@ -158,11 +160,18 @@ public class MFileReaderThread extends AbstractMThread {
                 // 将用户数据读取到队列当中
                 readUserGroupDataInQueue();
 
-                // 当读取完毕后解锁
-                workComplete();
+                synchronized (this.getCompleteLatch()) {
+                    // 当读取完毕后解锁
+                    workComplete();
 
-                blocking.compareAndSet(false, true);
+                    // 如果结束, 则将全局记录的Reader数量减一
+                    if (isEnd()) {
+                        this.THREADS_COUNT.getAndDecrement();
+                        break;
+                    }
+                }
 
+                while (!blocking.compareAndSet(false, true)) ;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -173,16 +182,12 @@ public class MFileReaderThread extends AbstractMThread {
 
     @Override
     public void shutdownComplete() {
-
-        for (String measureName : ConfigurationSetting.measures.keySet()) {
-//            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
-//            for (int i = 0; i < producerNums; i++) {
-//                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
-//            }
-            queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
-
-        }
-
+        queueMaps.forEach(
+                (s, q) -> {
+                    for(int i = 0; i < ConfigurationSetting.measures.get(s).getProducerNums(); i++)
+                        q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
+                    
+                });
         super.shutdownComplete();
     }
 }

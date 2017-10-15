@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.DelayQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -43,7 +43,8 @@ public class ConfigurationSetting {
     public static final String END_TIME;
 
     // 用于记录reader的个数
-    public static volatile int readerCount;
+    public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
+
     static {
         // 读入properties
         ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();

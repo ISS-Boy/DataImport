@@ -49,7 +49,8 @@ public class MMonitorThread extends AbstractMThread {
         Map<String, Boolean> needImportMeasure = new HashMap<>();
         while(!reader.isAllEnd()){
 
-            // 等待读取完成之后, 这里应该需要阻塞一会
+            // 等待读取完成之后
+            // , 这里应该需要阻塞一会
             reader.waitForThreadsWorkDown();
 
             queueMaps.forEach((s, v) -> {
@@ -62,12 +63,13 @@ public class MMonitorThread extends AbstractMThread {
             });
 
             // 重置完毕锁
-            CountDownLatch completeLatch = new CountDownLatch(ConfigurationSetting.readerCount);
+            CountDownLatch completeLatch = new CountDownLatch(reader.CURRENT_READER_COUNT.get());
             reader.resetCompleteLatchs(completeLatch);
             reader.setCompleteLatch(completeLatch);
 
             // 设置需要读取tag
             reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
+            Thread.sleep(1000);
         }
     }
 }

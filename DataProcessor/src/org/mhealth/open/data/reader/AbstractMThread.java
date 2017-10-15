@@ -31,6 +31,10 @@ public abstract class AbstractMThread implements Runnable {
         this(startupLatch, completeLatch, new CountDownLatch(0));
     }
 
+    protected CountDownLatch getCompleteLatch(){
+        return this.completeLatch;
+    }
+
     //完全启动线程
     public void startupComplete() {
         this.startupLatch.countDown();

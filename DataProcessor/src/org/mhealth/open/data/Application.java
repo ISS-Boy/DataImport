@@ -50,7 +50,7 @@ public class Application {
 
         MConsumer consumer = new MConsumer();
         consumer.consumeData(queueMaps);
-        System.out.println("开启消费者线程");
+        System.out.println("关闭消费者线程");
 
     }
 
