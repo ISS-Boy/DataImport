@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSON;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.NANOS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
@@ -19,7 +22,7 @@ public class MRecord implements Delayed {
     private Instant date;
     private String userId;
     private String measureName;
-    private long timestamp;
+    private LocalDateTime timestamp;
     private boolean poisonFlag;
 
     public MRecord(String msg, String measureName) {
@@ -33,7 +36,7 @@ public class MRecord implements Delayed {
         userId = JSON.parseObject(msg)
                 .getJSONObject("header")
                 .getString("user_id");
-        timestamp = System.currentTimeMillis();
+        timestamp = LocalDateTime.now();
     }
 
     public MRecord(boolean flag, Instant date) {
@@ -57,7 +60,7 @@ public class MRecord implements Delayed {
         return measureName;
     }
 
-    public long getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
@@ -69,13 +72,13 @@ public class MRecord implements Delayed {
     public long getDelay(TimeUnit unit) {
         // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
         // 延迟时间为负数或零时被取出
-        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, SECONDS), TimeUnit.SECONDS);
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, NANOS)/100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public int compareTo(Delayed o) {
         // 比较延迟时间，值越大优先级越低
-        return (int) (this.getDelay(TimeUnit.SECONDS) - o.getDelay(TimeUnit.SECONDS));
+        return (int) (this.getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));
     }
 
     @Override

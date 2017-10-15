@@ -1,5 +1,6 @@
 package org.mhealth.open.data.reader;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -18,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by dujijun on 2017/10/5.
  */
 public class MFileReaderThread extends AbstractMThread {
+
+    private static Logger logger = Logger.getLogger(MFileReaderThread.class);
 
     private File userGroupDir;
     private Map<String, BlockingQueue> queueMaps;
@@ -96,7 +99,6 @@ public class MFileReaderThread extends AbstractMThread {
                         // 2、转换成对象来进行处理
                         MRecord mRecord = new MRecord(record,measureName);
 
-
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }
@@ -122,14 +124,19 @@ public class MFileReaderThread extends AbstractMThread {
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
 
-        // 测试一下
-        System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
-        System.out.print("本次成功读取的文件有:");
-
-        tags.forEach((s, b) -> {
+        tags.forEach((s,b)->{
             if(b)
-                System.out.println(s);
+                logger.info(userGroupDir.getName()+"成功读取文件"+s);
         });
+
+        // 测试一下
+//        System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
+//        System.out.print("本次成功读取的文件有:");
+//
+//        tags.forEach((s, b) -> {
+//            if(b)
+//                System.out.println(s);
+//        });
 
     }
 
@@ -173,13 +180,8 @@ public class MFileReaderThread extends AbstractMThread {
 
     @Override
     public void shutdownComplete() {
-
-        for (String measureName : ConfigurationSetting.measures.keySet()) {
-            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
-            for (int i = 0; i < producerNums; i++) {
-                queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
-            }
-        }
+        // 每个队列都要放一个poisonPill
+        queueMaps.forEach((s, q) -> q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME))));
 
         super.shutdownComplete();
     }
