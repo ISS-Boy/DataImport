@@ -1,5 +1,6 @@
 package org.mhealth.open.data.reader;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by dujijun on 2017/10/5.
  */
 public class MFileReaderThread extends AbstractMThread {
-
+    private static Logger logger = Logger.getLogger(MFileReaderThread.class);
     private File userGroupDir;
     private Map<String, BlockingQueue> queueMaps;
 
@@ -124,13 +125,11 @@ public class MFileReaderThread extends AbstractMThread {
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
 
-        // 测试一下
-        System.out.printf("线程%s成功读取了一次用户组%s的数据文件\n", Thread.currentThread().getName(), userGroupDir.getName());
-        System.out.print("本次成功读取的文件有:");
+
 
         tags.forEach((s, b) -> {
             if (b)
-                System.out.println(s);
+                logger.info("成功读取了"+userGroupDir.getName()+s+"的文件");
         });
 
     }

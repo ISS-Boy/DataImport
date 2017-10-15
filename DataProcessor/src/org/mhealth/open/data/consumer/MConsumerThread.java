@@ -1,5 +1,6 @@
 package org.mhealth.open.data.consumer;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.queue.MDelayQueue;
 import org.mhealth.open.data.reader.MRecord;
@@ -12,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
  * @author just on 2017/10/9.
  */
 public class MConsumerThread implements Runnable{
+    private static Logger logger = Logger.getLogger(MConsumerThread.class);
     private MDelayQueue measureQueue;
     private MProducer producer;
 
@@ -19,7 +21,9 @@ public class MConsumerThread implements Runnable{
         this.measureQueue = (MDelayQueue) measureQueue;
         this.producer = producer;
     }
-
+    public MConsumerThread(BlockingQueue measureQueue){
+        this.measureQueue = (MDelayQueue) measureQueue;
+    }
 
     @Override
     public void run() {
@@ -34,7 +38,7 @@ public class MConsumerThread implements Runnable{
                 if(poisonCount >= ConfigurationSetting.READER_COUNT.get())
                     break;
                 // producer.produce2Dest(record);
-                System.out.println("消费了数据" + record + ", 现在是队列中有" + measureQueue.size() + "条数据, 现在是第" + measureQueue.getAndIncrement());
+               logger.info("消费了数据" + record + ", 现在是队列中有" + measureQueue.size() + "条数据, 现在是第" + measureQueue.getAndIncrement());
 
             }
         }catch (InterruptedException e){

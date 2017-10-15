@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MConsumer {
 
-
-
     private final Set<String> measures = ConfigurationSetting.measures.keySet();
     public static AtomicInteger written = new AtomicInteger(0);
 

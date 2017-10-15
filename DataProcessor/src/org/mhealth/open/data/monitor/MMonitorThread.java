@@ -58,7 +58,6 @@ public class MMonitorThread extends AbstractMThread {
                 float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
 
                 // 当目前元素的比率小于阈值时，则判断需要导入数据
-                System.out.println(s + "队列中，容量比率为" + rate);
                 needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
             });
 
