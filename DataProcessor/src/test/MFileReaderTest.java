@@ -147,6 +147,7 @@ public class MFileReaderTest {
         Clock clock = Clock.offset(current,Duration.between(current.instant(),date));
         System.out.println(current.instant().until(date, SECONDS));
         System.out.println(date.until(current.instant(), SECONDS));
+        System.out.println(TimeUnit.NANOSECONDS.convert(current.instant().until(date, SECONDS)/100,TimeUnit.SECONDS));
         System.out.println(TimeUnit.NANOSECONDS.convert(current.instant().until(date, SECONDS),TimeUnit.SECONDS));
         System.out.println(LocalDateTime.now());
         System.out.println(clock.instant());

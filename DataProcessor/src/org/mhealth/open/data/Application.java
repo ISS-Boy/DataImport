@@ -1,5 +1,6 @@
 package org.mhealth.open.data;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.consumer.MConsumer;
 import org.mhealth.open.data.reader.MDataReader;
@@ -9,6 +10,7 @@ import org.mhealth.open.data.util.ThreadsUtil;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -21,7 +23,7 @@ public class Application {
      * 4、等到reader线程全部开启之后开启处理线程
      * @param args
      */
-
+    private static Logger logger = Logger.getLogger(Application.class);
     public static void main(String[] args) throws InterruptedException {
 
         Map<String, BlockingQueue> queueMaps = initRecordContainer();
@@ -50,7 +52,7 @@ public class Application {
 
         MConsumer consumer = new MConsumer();
         consumer.consumeData(queueMaps);
-        System.out.println("关闭消费者线程");
+        logger.info("关闭消费者线程");
 
     }
 

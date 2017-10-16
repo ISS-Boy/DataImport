@@ -1,8 +1,7 @@
 package org.mhealth.open.data.consumer;
 
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +17,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author just on 2017/10/10.
  */
 public class MConsumer {
+    private static Logger logger = Logger.getLogger(MConsumer.class);
+    private static Logger loggerBP = Logger.getLogger("bloodPressure");
+    private static Logger loggerHR = Logger.getLogger("heartRate");
+    private static Logger loggerBF = Logger.getLogger("bodyFat");
 
     private final Set<String> measures = ConfigurationSetting.measures.keySet();
+
     public static AtomicInteger written = new AtomicInteger(0);
 
     public void consumeData(Map<String, BlockingQueue> queueMaps) {
@@ -35,7 +39,20 @@ public class MConsumer {
 //                MProducer producer = new MFileProducer(measureName);
 
 //                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
-                threadPool.execute(new MConsumerThread(queueMaps.get(measureName)));
+                switch (measureName){
+                    case "blood-pressure":
+                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerBP));
+                        break;
+                    case "body-fat-percentage":
+                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerBF));
+                        break;
+                    case "heart-rate":
+                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerHR));
+                        break;
+                    default:
+                        break;
+                }
+
             }
 
         }
@@ -48,7 +65,7 @@ public class MConsumer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            System.out.println(written);
+            logger.info(written);
         }
     }
 }

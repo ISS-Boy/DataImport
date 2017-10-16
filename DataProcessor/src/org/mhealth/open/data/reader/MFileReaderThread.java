@@ -129,7 +129,7 @@ public class MFileReaderThread extends AbstractMThread {
 
         tags.forEach((s, b) -> {
             if (b)
-                logger.info("成功读取了"+userGroupDir.getName()+s+"的文件");
+                logger.info("成功读取了"+userGroupDir.getName()+"-"+s+"的文件");
         });
 
     }

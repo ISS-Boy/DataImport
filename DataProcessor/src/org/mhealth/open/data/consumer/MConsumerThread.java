@@ -12,8 +12,8 @@ import java.util.concurrent.BlockingQueue;
  *
  * @author just on 2017/10/9.
  */
-public class MConsumerThread implements Runnable{
-    private static Logger logger = Logger.getLogger(MConsumerThread.class);
+public class MConsumerThread implements Runnable {
+    private Logger logger;// = Logger.getLogger(MConsumerThread.class);
     private MDelayQueue measureQueue;
     private MProducer producer;
 
@@ -21,27 +21,29 @@ public class MConsumerThread implements Runnable{
         this.measureQueue = (MDelayQueue) measureQueue;
         this.producer = producer;
     }
-    public MConsumerThread(BlockingQueue measureQueue){
+
+    public MConsumerThread(BlockingQueue measureQueue,Logger logger) {
         this.measureQueue = (MDelayQueue) measureQueue;
+        this.logger = logger;
     }
 
     @Override
     public void run() {
-        try{
+        try {
             int poisonCount = 0;
-            while(true){
+            while (true) {
                 MRecord record = (MRecord) measureQueue.take();
-                if(record.isPoisonPill())
+                if (record.isPoisonPill())
                     poisonCount++;
 
-                // 如果毒丸吃够了就跳出
-                if(poisonCount >= ConfigurationSetting.READER_COUNT.get())
-                    break;
-                // producer.produce2Dest(record);
-               logger.info("消费了数据" + record + ", 现在是队列中有" + measureQueue.size() + "条数据, 现在是第" + measureQueue.getAndIncrement());
 
+                // producer.produce2Dest(record);
+                logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + MConsumer.written.incrementAndGet());
+                // 如果毒丸吃够了就跳出
+                if (poisonCount >= ConfigurationSetting.READER_COUNT.get())
+                    break;
             }
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
