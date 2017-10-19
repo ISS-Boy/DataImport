@@ -2,7 +2,9 @@ package org.mhealth.open.data.consumer;
 
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
+import org.mhealth.open.data.reader.MRecord;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -30,32 +32,30 @@ public class MConsumer {
 
         ExecutorService threadPool = Executors.newCachedThreadPool();
 
-        for (String measureName : measures) {
-
-            int producerNums = ConfigurationSetting.measures.get(measureName).getProducerNums();
-            for (int i = 0; i < producerNums; i++) {
-                // 指定数据发送到kafka终端
-//                MProducer producer = new MKafkaProducer();
+        //遍历队列,创建对应个数的消费者
+        queueMaps.forEach(
+                (name, queue) -> {
+                    for (int i = 0; i < ConfigurationSetting.measures.get(name).getProducerNums(); i++) {
+                        // 指定数据发送到kafka终端
+                MProducer producer = new MKafkaProducer();
 //                MProducer producer = new MFileProducer(measureName);
-
 //                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
-                switch (measureName){
-                    case "blood-pressure":
-                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerBP));
-                        break;
-                    case "body-fat-percentage":
-                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerBF));
-                        break;
-                    case "heart-rate":
-                        threadPool.execute(new MConsumerThread(queueMaps.get(measureName),loggerHR));
-                        break;
-                    default:
-                        break;
-                }
+                        switch (name) {
+                            case "blood-pressure":
+                                threadPool.execute(new MConsumerThread(queue, producer,loggerBP));
+                                break;
+                            case "body-fat-percentage":
+                                threadPool.execute(new MConsumerThread(queue, producer,loggerBF));
+                                break;
+                            case "heart-rate":
+                                threadPool.execute(new MConsumerThread(queue,producer, loggerHR));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
 
-            }
-
-        }
         // 顺序执行已提交任务，不再接受新任务.
         threadPool.shutdown();
 

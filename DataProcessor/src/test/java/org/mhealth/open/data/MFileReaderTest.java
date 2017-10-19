@@ -1,9 +1,10 @@
-package test;
+package org.mhealth.open.data;
 
 import com.alibaba.fastjson.JSON;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mhealth.open.data.util.ClockService;
 
 import java.io.*;
 import java.time.*;
@@ -14,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
@@ -145,13 +147,13 @@ public class MFileReaderTest {
         Clock current = Clock.system(ZoneId.systemDefault());
         Instant date = Instant.parse("2017-01-01T12:00:00Z");
         Clock clock = Clock.offset(current,Duration.between(current.instant(),date));
+        Clock tickClock = Clock.tick(current,Duration.of(500_000,MILLIS));
         System.out.println(current.instant().until(date, SECONDS));
         System.out.println(date.until(current.instant(), SECONDS));
         System.out.println(TimeUnit.NANOSECONDS.convert(current.instant().until(date, SECONDS)/100,TimeUnit.SECONDS));
         System.out.println(TimeUnit.NANOSECONDS.convert(current.instant().until(date, SECONDS),TimeUnit.SECONDS));
         System.out.println(LocalDateTime.now());
         System.out.println(clock.instant());
-        Thread.sleep(1000);
         System.out.println(clock.instant());
 
         System.out.println(current.instant());
@@ -164,5 +166,16 @@ public class MFileReaderTest {
         Clock self = Clock.offset(current, Duration.ofDays(-1));
         System.out.println(self.instant());
     }
-
+    @Test
+    public void testClockService() throws InterruptedException {
+        ClockService cs = new ClockService(Instant.parse("2017-01-01T12:00:00Z"),10);
+        System.out.println("当前时间是:"+cs.instant());
+        Thread.sleep(1000);
+        System.out.println("过了一秒后:"+cs.instant());
+        for (int i = 0; i <10 ; i++) {
+            System.out.println("当前时间是:"+cs.instant());
+            System.out.println("======过了0.1秒=======");
+            Thread.sleep(100);
+        }
+    }
 } 

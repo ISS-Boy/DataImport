@@ -99,7 +99,6 @@ public class MFileReaderThread extends AbstractMThread {
                         // 2、转换成对象来进行处理
                         MRecord mRecord = new MRecord(record, measureName);
 
-
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }
@@ -115,8 +114,6 @@ public class MFileReaderThread extends AbstractMThread {
                     }
                     fileOffsetRecorder.put(offsetKey, nextStartOffset);
 
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -125,11 +122,9 @@ public class MFileReaderThread extends AbstractMThread {
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
 
-
-
         tags.forEach((s, b) -> {
             if (b)
-                logger.info("成功读取了"+userGroupDir.getName()+"-"+s+"的文件");
+                logger.info("成功读取了一批"+userGroupDir.getName()+"-"+s+"的文件");
         });
 
     }
@@ -157,17 +152,12 @@ public class MFileReaderThread extends AbstractMThread {
                     Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
                 // 将用户数据读取到队列当中
+
                 readUserGroupDataInQueue();
 
                 synchronized (this.getCompleteLatch()) {
                     // 当读取完毕后解锁
                     workComplete();
-
-                    // 如果结束, 则将全局记录的Reader数量减一
-                    if (isEnd()) {
-                        this.THREADS_COUNT.getAndDecrement();
-                        break;
-                    }
                 }
 
                 while (!blocking.compareAndSet(false, true)) ;
@@ -181,12 +171,6 @@ public class MFileReaderThread extends AbstractMThread {
 
     @Override
     public void shutdownComplete() {
-        queueMaps.forEach(
-                (s, q) -> {
-                    for(int i = 0; i < ConfigurationSetting.measures.get(s).getProducerNums(); i++)
-                        q.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
-                    
-                });
         super.shutdownComplete();
     }
 }

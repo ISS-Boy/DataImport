@@ -2,9 +2,9 @@ package org.mhealth.open.data.configuration;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.mhealth.open.data.queue.MDelayQueue;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MRecord;
+import org.mhealth.open.data.util.ClockService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -38,12 +39,13 @@ public class ConfigurationSetting {
     public static final Map<String, MeasureConfiguration> measures = new HashMap<>();
 
     // 时钟
-    public static final Clock CLOCK;
+    public static final ClockService CLOCK;
 
     // 终止时间->毒丸
     public static final String END_TIME;
 
     // 用于记录reader的个数
+    @Deprecated
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
 
     static {
@@ -58,6 +60,7 @@ public class ConfigurationSetting {
         int tmpMaxQueueSize = 0;
         Class tmpReaderClass = null;
         String tmpStartTime=null,tmpEndTime = null;
+        int tmpTickTime = 1;
         try {
             prop.load(resource_in);
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
@@ -66,6 +69,7 @@ public class ConfigurationSetting {
             tmpReaderClass = Class.forName(prop.getProperty("READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
+            tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
             // 这里开始读入measure相关配置项
             String[] measureNames = prop.getProperty("measureNames").split(",");
             for (String name : measureNames) {
@@ -74,17 +78,14 @@ public class ConfigurationSetting {
                 int producerNums = Integer.valueOf(prop.getProperty(name+".producerNums"));
                 measures.put(name, new MeasureConfiguration(name, readingFrequency, queueImportThreshold,producerNums));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         DATA_ROOT_PATH = tmpDataRootPath;
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         READER_CLASS = tmpReaderClass;
-        Clock baseClock = Clock.systemUTC();
-        CLOCK = Clock.offset(baseClock, Duration.between(baseClock.instant(), Instant.parse(tmpStartTime)));
+        CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
         END_TIME = tmpEndTime;
     }
 
@@ -93,7 +94,7 @@ public class ConfigurationSetting {
         Set<String> measureNames = measures.keySet();
         measureNames.forEach(name ->
                 queueMaps.put(name,
-                        new MDelayQueue<MRecord>())
+                        new DelayQueue<MRecord>())
         );
         return queueMaps;
     }

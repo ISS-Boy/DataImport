@@ -1,10 +1,15 @@
 package org.mhealth.open.data.reader;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -18,15 +23,15 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * @author just on 2017/10/8.
  */
 public class MRecord implements Delayed {
-    private String msg;
     private Instant date;
     private String userId;
     private String measureName;
-    private LocalDateTime timestamp;
+    private long timestamp;
+
+    private Map<String, Map<String, String>> measures = new HashMap<>();
     private boolean poisonFlag;
 
     public MRecord(String msg, String measureName) {
-        this.msg = msg;
         this.measureName = measureName;
         date = JSON.parseObject(msg)
                 .getJSONObject("body")
@@ -36,12 +41,25 @@ public class MRecord implements Delayed {
         userId = JSON.parseObject(msg)
                 .getJSONObject("header")
                 .getString("user_id");
-        timestamp = LocalDateTime.now();
+        JSON.parseObject(msg)
+                .getJSONObject("body")
+                .forEach((key, values) -> {
+                    if (!key.equals("effective_time_frame")) {
+                        Map<String, String> value = new HashMap<>();
+                        ((JSONObject) values).forEach((k, v) -> {
+                            value.put(k, v.toString());
+                        });
+                        measures.put(key, value);
+                    }
+                });
+
+        timestamp = System.currentTimeMillis();
     }
 
     public MRecord(boolean flag, Instant date) {
         this.poisonFlag = flag;
         this.date = date;
+        this.timestamp = System.currentTimeMillis();
     }
 
     public Instant getDate() {
@@ -52,15 +70,11 @@ public class MRecord implements Delayed {
         return userId;
     }
 
-    public String getMsg() {
-        return msg;
-    }
-
     public String getMeasureName() {
         return measureName;
     }
 
-    public LocalDateTime getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -68,11 +82,15 @@ public class MRecord implements Delayed {
         return poisonFlag;
     }
 
+    public Map<String, Map<String, String>> getMeasures() {
+        return measures;
+    }
+
     @Override
     public long getDelay(TimeUnit unit) {
         // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
         // 延迟时间为负数或零时被取出
-        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, NANOS), TimeUnit.MILLISECONDS);
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, NANOS) / 2, TimeUnit.NANOSECONDS);
     }
 
     @Override
@@ -84,11 +102,10 @@ public class MRecord implements Delayed {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("DelayRecord[");
-//        sb.append("msg:'").append(msg).append("'")
         sb.append("measure:").append(measureName)
                 .append(", date:").append(date)
                 .append(", user_id:").append(userId)
-                .append(", timestamp:").append(timestamp)
+                .append(", timestamp:").append(Instant.ofEpochMilli(timestamp))
                 .append("]");
         return sb.toString();
     }

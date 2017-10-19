@@ -1,0 +1,14 @@
+{
+    "namespace": "org.mhealth.open.data.avro",
+    "name": "BloodPressure",
+    "type": "record",
+    "fields": [
+        {"name": "id","type":{"type":"fixed","name":"UUId","size":16}},
+        {"name": "user_id", "type": "string" },
+        {"name": "timestamp", "type": "long"},
+        {"name": "systolic_blood_pressure", "type": {"type":"map","values":"string"}}
+
+    ]
+}
+# {"name":"body","type":{"name":"measures","type":"record",
+#        "fields": [{"name":"measure","type":{"type":"array","items":{"type":"map","values":"double"}}} ]}}

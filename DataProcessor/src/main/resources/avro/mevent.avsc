@@ -1,0 +1,10 @@
+{
+    "namespace": "org.mhealth.open.data.avro",
+    "name": "MEvent",
+    "type": "record",
+    "fields": [
+        {"name": "user_id", "type": ["string","null"] },
+        {"name": "timestamp", "type": "long"},
+        {"name": "measures" ,"type": {"type":"map","values":{"type":"map","values":"string"}}}
+    ]
+}

@@ -4,7 +4,9 @@ import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.MeasureConfiguration;
 import org.mhealth.open.data.reader.AbstractMThread;
 import org.mhealth.open.data.reader.MFileReader;
+import org.mhealth.open.data.reader.MRecord;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -70,5 +72,11 @@ public class MMonitorThread extends AbstractMThread {
             reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
             Thread.sleep(1000);
         }
+        queueMaps.forEach(
+                (measureName, queue) -> {
+                    for(int i = 0; i < ConfigurationSetting.measures.get(measureName).getProducerNums(); i++)
+                        queue.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
+
+                });
     }
 }

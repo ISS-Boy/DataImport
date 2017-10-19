@@ -63,6 +63,7 @@ public class Application {
         reader.readDataInQueue(queueMaps);
 
         // 真正开启reader
+        logger.info("start read");
         ThreadsUtil.startupDataReader(reader);
         return reader;
     }
