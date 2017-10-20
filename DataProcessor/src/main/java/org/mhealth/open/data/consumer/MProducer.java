@@ -17,4 +17,9 @@ public interface MProducer {
      * @param record
      */
     void produce2Dest(MRecord record);
+
+    /**
+     * 关闭producer
+     */
+    void close();
 }

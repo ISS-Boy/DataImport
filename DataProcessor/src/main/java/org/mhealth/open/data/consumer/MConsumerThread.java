@@ -31,12 +31,12 @@ public class MConsumerThread implements Runnable {
     @Override
     public void run() {
         try {
-//            int poisonCount = 0;
             while (true) {
                 MRecord record = (MRecord) measureQueue.take();
-                if (record.isPoisonPill())
+                if (record.isPoisonPill()){
+                    producer.close();
                     break;
-
+                }
                 producer.produce2Dest(record);
                 logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + MConsumer.written.incrementAndGet());
 

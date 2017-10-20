@@ -1,16 +1,11 @@
 package org.mhealth.open.data.consumer;
 
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.GenericRecordBuilder;
-import org.apache.avro.Schema;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.avro.MEvent;
-import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.ProducerSetting;
 import org.mhealth.open.data.reader.MRecord;
 import org.mhealth.open.data.avro.MMessage;
@@ -52,8 +47,7 @@ public class MKafkaProducer implements MProducer {
         // non-blocking using Callback
         kafkaProducer.send(message, (RecordMetadata metadata, Exception e) -> {
             if (e != null) {
-                logger.error("发送消息失败");
-                e.printStackTrace();
+                logger.error("发送消息失败",e);
             }
 
             logger.info(("The offset of the record we just sent is: " + metadata.offset()));
@@ -61,6 +55,10 @@ public class MKafkaProducer implements MProducer {
 
     }
 
+    @Override
+    public void close() {
+        kafkaProducer.close();
+    }
 //    public Schema loadSchema(String name) throws IOException {
 //        try (InputStream input = MKafkaProducer.class.getClassLoader()
 //                .getResourceAsStream("avro/" + name)) {
