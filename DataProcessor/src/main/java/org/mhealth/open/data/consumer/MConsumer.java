@@ -1,6 +1,7 @@
 package org.mhealth.open.data.consumer;
 
 import org.apache.log4j.Logger;
+import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.reader.MRecord;
 
@@ -28,12 +29,12 @@ public class MConsumer {
 
     public static AtomicInteger written = new AtomicInteger(0);
 
-    public void consumeData(Map<String, BlockingQueue> queueMaps) {
+    public void consumeData() {
 
         ExecutorService threadPool = Executors.newCachedThreadPool();
 
         //遍历队列,创建对应个数的消费者
-        queueMaps.forEach(
+        Application.queueMaps.forEach(
                 (name, queue) -> {
                     for (int i = 0; i < ConfigurationSetting.measures.get(name).getProducerNums(); i++) {
                         // 指定数据发送到kafka终端

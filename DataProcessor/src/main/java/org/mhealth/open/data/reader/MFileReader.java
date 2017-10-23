@@ -11,6 +11,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.mhealth.open.data.Application.queueMaps;
+
 /**
  * Created by dujijun on 2017/10/5.
  */
@@ -33,7 +35,7 @@ public class MFileReader extends MThreadController implements MDataReader {
     }
 
     @Override
-    public void readDataInQueue(Map<String, BlockingQueue> queueMaps) {
+    public void readDataInQueue() {
         File rootDir = new File(dataRootPath);
         if (!rootDir.isDirectory())
             throw new InValidPathException("数据路径选取不合法，请重新选择路径");
@@ -53,7 +55,7 @@ public class MFileReader extends MThreadController implements MDataReader {
         setStartupLatch(startupThreadsLatch);
         setCompleteLatch(readCompleteLatch);
         for (File userGroup : userGroups) {
-            MFileReaderThread reader = new MFileReaderThread(startupThreadsLatch, readCompleteLatch, userGroup, queueMaps, CURRENT_READER_COUNT);
+            MFileReaderThread reader = new MFileReaderThread(startupThreadsLatch, readCompleteLatch, userGroup, CURRENT_READER_COUNT);
             Thread readThread = new Thread(reader);
             readers.add(reader);
             readThread.start();

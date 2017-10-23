@@ -9,8 +9,6 @@ import org.mhealth.open.data.util.ClockService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -24,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConfigurationSetting {
     private static Logger logger = Logger.getLogger(ConfigurationSetting.class);
+
     // 数据导入的路径
     public static final String DATA_ROOT_PATH;
 
@@ -33,8 +32,11 @@ public class ConfigurationSetting {
     // 队列最大长度
     public static final int MAX_QUEUE_SIZE;
 
-    // 数据读取器的类
-    public static final Class<? extends MDataReader> READER_CLASS;
+    // MHealth数据读取器的类
+    public static final Class<? extends MDataReader> MHEALTH_READER_CLASS;
+
+    // synthea数据读取器的类
+    public static final Class<? extends MDataReader> SYNTHEA_READER_CLASS;
 
     // 包装所有和度量相关配置项
     public static final Map<String, MeasureConfiguration> measures = new HashMap<>();
@@ -62,7 +64,8 @@ public class ConfigurationSetting {
         String tmpDataRootPath = null;
         long tmpReadingIntervalMillis = 0l;
         int tmpMaxQueueSize = 0;
-        Class tmpReaderClass = null;
+        Class tmpMHealthReaderClass = null;
+        Class tmpSyntheaClass = null;
         String tmpStartTime=null,tmpEndTime = null;
         int tmpTickTime = 1;
         try {
@@ -70,10 +73,12 @@ public class ConfigurationSetting {
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
             tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
             tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
-            tmpReaderClass = Class.forName(prop.getProperty("READER_CLASS_NAME"));
+            tmpMHealthReaderClass = Class.forName(prop.getProperty("MHEALTH_READER_CLASS_NAME"));
+            tmpSyntheaClass = Class.forName(prop.getProperty("SYNTHRA_READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
             tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
+
             // 这里开始读入measure相关配置项
             String[] measureNames = prop.getProperty("measureNames").split(",");
             for (String name : measureNames) {
@@ -88,14 +93,15 @@ public class ConfigurationSetting {
         DATA_ROOT_PATH = tmpDataRootPath;
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
-        READER_CLASS = tmpReaderClass;
+        MHEALTH_READER_CLASS = tmpMHealthReaderClass;
+        SYNTHEA_READER_CLASS = tmpSyntheaClass;
         TICK_PER_SECOND = tmpTickTime;
         CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
         logger.info(CLOCK.instant());
         END_TIME = tmpEndTime;
     }
 
-    public static Map<String, BlockingQueue> getSimpleContainer() {
+    public static Map<String, BlockingQueue> initSimpleContainer() {
         Map<String, BlockingQueue> queueMaps = new HashMap<>();
         Set<String> measureNames = measures.keySet();
         measureNames.forEach(name ->
@@ -120,7 +126,6 @@ public class ConfigurationSetting {
                 .getJSONObject("effective_time_frame")
                 .getDate("date_time");
         return -date1.compareTo(date2);
-
     }
 
 }
