@@ -2,6 +2,7 @@ package org.mhealth.open.data.configuration;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.log4j.Logger;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MRecord;
 import org.mhealth.open.data.util.ClockService;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 这个类之后会被改装成通过配置文件读入
  */
 public class ConfigurationSetting {
-
+    private static Logger logger = Logger.getLogger(ConfigurationSetting.class);
     // 数据导入的路径
     public static final String DATA_ROOT_PATH;
 
@@ -47,6 +48,9 @@ public class ConfigurationSetting {
     // 用于记录reader的个数
     @Deprecated
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
+
+    // 时钟每秒tick次数
+    public static final int TICK_PER_SECOND;
 
     static {
         // 读入properties
@@ -85,7 +89,9 @@ public class ConfigurationSetting {
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         READER_CLASS = tmpReaderClass;
+        TICK_PER_SECOND = tmpTickTime;
         CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
+        logger.info(CLOCK.instant());
         END_TIME = tmpEndTime;
     }
 

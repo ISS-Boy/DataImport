@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.mhealth.open.data.avro.MEvent;
 import org.mhealth.open.data.configuration.ProducerSetting;
 import org.mhealth.open.data.reader.MRecord;
-import org.mhealth.open.data.avro.MMessage;
 
 import java.io.IOException;
 import java.io.InputStream;

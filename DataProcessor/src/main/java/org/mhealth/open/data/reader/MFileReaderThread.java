@@ -98,7 +98,8 @@ public class MFileReaderThread extends AbstractMThread {
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
                         MRecord mRecord = new MRecord(record, measureName);
-
+                        logger.info("read record in "+userGroupDir.getName()+"-"+measureName);
+//                        logger.info(StringFormat.);
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }
@@ -121,11 +122,11 @@ public class MFileReaderThread extends AbstractMThread {
         }
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
-
-        tags.forEach((s, b) -> {
-            if (b)
-                logger.info("成功读取了一批"+userGroupDir.getName()+"-"+s+"的文件");
-        });
+//
+//        tags.forEach((s, b) -> {
+//            if (b)
+//                logger.info("成功读取了一批"+userGroupDir.getName()+"-"+s+"的文件");
+//        });
 
     }
 
@@ -158,6 +159,11 @@ public class MFileReaderThread extends AbstractMThread {
                 synchronized (this.getCompleteLatch()) {
                     // 当读取完毕后解锁
                     workComplete();
+                    // 如果结束, 则将全局记录的Reader数量减一
+                    if (isEnd()) {
+                        this.THREADS_COUNT.getAndDecrement();
+                        break;
+                    }
                 }
 
                 while (!blocking.compareAndSet(false, true)) ;

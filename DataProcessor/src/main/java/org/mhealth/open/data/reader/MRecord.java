@@ -90,7 +90,7 @@ public class MRecord implements Delayed {
     public long getDelay(TimeUnit unit) {
         // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
         // 延迟时间为负数或零时被取出
-        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, NANOS) / 2, TimeUnit.NANOSECONDS);
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.date, NANOS) / (2*ConfigurationSetting.TICK_PER_SECOND), TimeUnit.NANOSECONDS);
     }
 
     @Override

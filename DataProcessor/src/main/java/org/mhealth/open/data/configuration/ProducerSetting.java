@@ -27,14 +27,14 @@ public class ProducerSetting {
             props.put("client.id", InetAddress.getLocalHost().getHostName()); // 本地ip,方便调试
 
             props.put("schema.registry.url", SCHEMA_REGISTRY_URL);
-            props.put("acks", 1);//有一台服务器写入成功就确认,需要强guarantee则配置为"all"
+            props.put("acks", "1");//有一台服务器写入成功就确认,需要强guarantee则配置为"all"
             props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, io.confluent.kafka.serializers.KafkaAvroSerializer.class);
             props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, io.confluent.kafka.serializers.KafkaAvroSerializer.class);
             props.put("partitioner.class", "org.mhealth.open.data.consumer.MKafkaProducerPartitioner");//设置分区类
-            props.put("retries", 3);// 重试次数，会触发kafka的reordering
-            props.put("buffer.memory", 33554432);// 缓冲区的大小限制
-            props.put("batch.size", 102400);// 异步提交的时候(async)，并发提交的记录batch,单位是byte
-            props.put("linger.ms", 5); // 延迟时间，若已达到batch.size会无视该配置直接发送
+            props.put("retries", "3");// 重试次数，会触发kafka的reordering
+            props.put("buffer.memory", "33554432");// 缓冲区的大小限制
+            props.put("batch.size", "102400");// 异步提交的时候(async)，并发提交的记录batch,单位是byte
+            props.put("linger.ms", "5"); // 延迟时间，若已达到batch.size会无视该配置直接发送
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
