@@ -16,5 +16,5 @@ public interface MDataReader {
     /**
      * 将数据读入目标队列当中
      */
-    void readDataInQueue();
+    void readDataInQueue() throws InterruptedException;
 }

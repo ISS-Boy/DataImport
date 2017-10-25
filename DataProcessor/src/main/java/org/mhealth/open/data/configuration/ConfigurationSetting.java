@@ -26,6 +26,8 @@ public class ConfigurationSetting {
     // 数据导入的路径
     public static final String DATA_ROOT_PATH;
 
+    public static final String SDATA_ROOT_PATH;
+
     // 判断线程是否应该阻塞的时间间隔
     public static final long BLOCK_WAIT_TIME;
 
@@ -62,6 +64,7 @@ public class ConfigurationSetting {
 
         // 读入相应的数据
         String tmpDataRootPath = null;
+        String tmpSDataRootPath = null;
         long tmpReadingIntervalMillis = 0l;
         int tmpMaxQueueSize = 0;
         Class tmpMHealthReaderClass = null;
@@ -70,6 +73,7 @@ public class ConfigurationSetting {
         int tmpTickTime = 1;
         try {
             prop.load(resource_in);
+            tmpSDataRootPath = prop.getProperty("SDATA_ROOT_PATH");
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
             tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
             tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
@@ -91,6 +95,7 @@ public class ConfigurationSetting {
             e.printStackTrace();
         }
         DATA_ROOT_PATH = tmpDataRootPath;
+        SDATA_ROOT_PATH = tmpSDataRootPath;
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         MHEALTH_READER_CLASS = tmpMHealthReaderClass;

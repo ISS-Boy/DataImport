@@ -39,7 +39,7 @@ public class MConsumer {
                     for (int i = 0; i < ConfigurationSetting.measures.get(name).getProducerNums(); i++) {
                         // 指定数据发送到kafka终端
                 MProducer producer = new MKafkaProducer();
-//                MProducer producer = new MFileProducer(measureName);
+//                MProducer producer = new MFileProducer(name);
 //                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
                         switch (name) {
                             case "blood-pressure":
