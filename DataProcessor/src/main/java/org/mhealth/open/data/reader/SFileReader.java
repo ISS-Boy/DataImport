@@ -1,14 +1,13 @@
 package org.mhealth.open.data.reader;
 
+import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.InValidPathException;
+import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 import org.mhealth.open.data.record.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -75,6 +74,10 @@ public class SFileReader extends MThreadController implements MDataReader {
 
     }
     private static void observationReader(File obsfile) {
+        String partName = obsfile.getName();
+        partName = partName.substring(0, partName.indexOf("."));
+        Queue partQueue = Objects.requireNonNull(Application.squeueMaps.get(partName), "队列未创建或文件名有误");
+
         Set<String> obs = new HashSet<>();
         for(int i= 0;i<DESCRIPTIONS.length;i++)
             obs.add(DESCRIPTIONS[i]);
@@ -102,7 +105,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                 }
                 Observations ob = new Observations(lines);
                 //之后改为进队操作
-                System.out.println(ob);
+//                System.out.println(ob);
+                if (!partQueue.offer(ob)) {
+                    throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                }
             }
 
             }catch (IOException e){
@@ -112,6 +118,9 @@ public class SFileReader extends MThreadController implements MDataReader {
 
 
     private static void allergieReader(File allerfile){
+        String partName = allerfile.getName();
+        partName = partName.substring(0, partName.indexOf("."));
+        Queue partQueue = Objects.requireNonNull(Application.squeueMaps.get(partName), "队列未创建或文件名有误");
 
         String pline;
         String[] line;
@@ -134,14 +143,20 @@ public class SFileReader extends MThreadController implements MDataReader {
                     }else{
                         Allergies al = new Allergies(lines);
                         //之后改为进队操作
-                        System.out.println(al);
+//                        System.out.println(al);
+                        if (!partQueue.offer(al)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                         break;
                     }
                 }
                 if(pline==null){
                     Allergies al = new Allergies(lines);
                     //之后改为进队操作
-                    System.out.println(al);
+//                    System.out.println(al);
+                    if (!partQueue.offer(al)) {
+                        throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                    }
                     break;
                 }
 
@@ -153,6 +168,10 @@ public class SFileReader extends MThreadController implements MDataReader {
     }
 
     private static void lineReader(File linefile){
+        String partName = linefile.getName();
+        partName = partName.substring(0, partName.indexOf("."));
+        Queue partQueue = Objects.requireNonNull(Application.squeueMaps.get(partName), "队列未创建或文件名有误");
+
         String pline;
         String[] line;
         BufferedReader bf;
@@ -161,13 +180,17 @@ public class SFileReader extends MThreadController implements MDataReader {
             bf = new BufferedReader(new FileReader(linefile));
             //读一行跳过表头
             bf.readLine();
+            //根据不同的文件创建不同的对象
             switch (filename){
                 case "careplans.csv":
                     while ((pline = bf.readLine())!=null){
                         line = pline.split(",");
                         CarePlans care = new CarePlans(line);
                         //之后改为进队操作
-                        System.out.println(care);
+//                        System.out.println(care);
+                        if (!partQueue.offer(care)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "conditions.csv":
@@ -175,7 +198,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                         Conditions cond = new Conditions(line);
                         //之后改为进队操作
-                        System.out.println(cond);
+//                        System.out.println(cond);
+                        if (!partQueue.offer(cond)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "encounters.csv":
@@ -183,7 +209,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                         Encounters enc = new Encounters(line);
                         //之后改为进队操作
-                        System.out.println(enc);
+//                        System.out.println(enc);
+                        if (!partQueue.offer(enc)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "immunizations.csv":
@@ -191,7 +220,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                         Immunizations imm = new Immunizations(line);
                         //之后改为进队操作
-                        System.out.println(imm);
+//                        System.out.println(imm);
+                        if (!partQueue.offer(imm)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "medications.csv":
@@ -199,7 +231,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                         Medications med = new Medications(line);
                         //之后改为进队操作
-                        System.out.println(med);
+//                        System.out.println(med);
+                        if (!partQueue.offer(med)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "patients.csv":
@@ -207,7 +242,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                         Patients pat = new Patients(line);
                         //之后改为进队操作
-                        System.out.println(pat);
+//                        System.out.println(pat);
+                        if (!partQueue.offer(pat)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
                 case "procedures.csv":
@@ -215,7 +253,10 @@ public class SFileReader extends MThreadController implements MDataReader {
                         line = pline.split(",");
                          procedures pro = new procedures(line);
                         //之后改为进队操作
-                        System.out.println(pro);
+//                        System.out.println(pro);
+                        if (!partQueue.offer(pro)) {
+                            throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
+                        }
                     }
                     break;
             }
