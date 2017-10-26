@@ -21,8 +21,10 @@ public class CarePlans extends SRecord{
         this.encounter = line[4];
         this.code = line[5];
         this.description = line[6];
-        this.rcode = line[7];
-        this.reasondescription = line[8];
+        if(line.length>7){
+            this.rcode = line[7];
+            this.reasondescription = line[8];
+        }
     }
 
     public String getId() { return id; }

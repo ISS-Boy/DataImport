@@ -4,15 +4,15 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 
 public class SRecord {
-    protected String userId;
-    protected Instant date;
-    protected String code;
-    protected String rcode;
-    protected Instant start;
-    protected Instant stop;
-    protected String encounter;
-    protected String description;
-    protected String reasondescription;
+    protected String userId = null;
+    protected Instant date = null;
+    protected String code = null;
+    protected String rcode = null;
+    protected Instant start = null;
+    protected Instant stop = null;
+    protected String encounter = null;
+    protected String description = null;
+    protected String reasondescription = null;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public String toString (){

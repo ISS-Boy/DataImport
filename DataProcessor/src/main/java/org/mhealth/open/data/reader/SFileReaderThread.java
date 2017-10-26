@@ -42,9 +42,10 @@ public class SFileReaderThread extends AbstractMThread {
 
     @Override
     public void run() {
-//        startupComplete();
+        startupComplete();
         function.accept(part);
         shutdownComplete();
+
 
     }
 }

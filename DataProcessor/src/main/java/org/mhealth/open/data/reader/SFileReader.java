@@ -52,11 +52,29 @@ public class SFileReader extends MThreadController implements MDataReader {
         setStartupLatch(startupThreadsLatch);
         setCompleteLatch(readCompleteLatch);
         setShutdownLatch(shutdownCompleteLatch);
-        SFileReaderThread reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,parts[0],SFileReader::allergieReader);
-        Thread readTherad = new Thread(reader);
-        readers.add(reader);
-        readTherad.start();
+
+        SFileReaderThread reader;
+        for(File part:parts){
+            switch (part.getName()){
+                case "allergies.csv":
+                    reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,part,SFileReader::allergieReader);
+                    break;
+                case "observations.csv":
+                    reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,part,SFileReader::observationReader);
+                    break;
+                default:
+                    reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,part,SFileReader::lineReader);
+                    break;
+            }
+//            SFileReaderThread reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,parts[8],SFileReader::lineReader);
+            Thread readTherad = new Thread(reader);
+            readers.add(reader);
+            readTherad.start();
+        }
+        waitForThreadsStartup();
         waitForThreadsShutdown();
+
+
 
 
     }

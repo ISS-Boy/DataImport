@@ -16,8 +16,11 @@ public class Encounters extends SRecord{
         this.userId = line[2];
         this.code = line[3];
         this.description = line[4];
-        this.rcode = line[5];
-        this.reasondescription = line[6];
+        if(line.length>6) {
+            this.rcode = line[5];
+            this.reasondescription = line[6];
+        }
+
     }
 
     public String geteId() {

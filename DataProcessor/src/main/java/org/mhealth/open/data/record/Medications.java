@@ -18,8 +18,11 @@ public class Medications extends SRecord{
         this.encounter = line[3];
         this.code = line[4];
         this.description = line[5];
-        this.rcode = line[6];
-        this.reasondescription = line[7];
+        if(line.length>6) {
+            this.rcode = line[6];
+            this.reasondescription = line[7];
+        }
+
     }
 
     public Instant getStart() {
