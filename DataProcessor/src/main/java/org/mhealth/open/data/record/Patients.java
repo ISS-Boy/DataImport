@@ -1,7 +1,12 @@
 package org.mhealth.open.data.record;
 
+import org.mhealth.open.data.configuration.ConfigurationSetting;
+
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+
+import static java.time.temporal.ChronoUnit.HOURS;
 
 public class Patients extends SRecord{
     private String name;
@@ -46,6 +51,13 @@ public class Patients extends SRecord{
 
     public String getRace() {
         return race;
+    }
+
+    public long getDelay(TimeUnit unit) {
+        // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
+        // 延迟时间为负数或零时被取出
+
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.birthdate, HOURS) / (2*ConfigurationSetting.TICK_PER_SECOND), TimeUnit.HOURS);
     }
 
     public String toString() {

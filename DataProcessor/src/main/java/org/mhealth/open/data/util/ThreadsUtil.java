@@ -28,6 +28,9 @@ public class ThreadsUtil {
 
             // 这里是启动你的SFileReader的代码
             else if(reader instanceof SFileReader){
+                SFileReader fileReader = (SFileReader) reader;
+                fileReader.waitForThreadsStartup();
+                fileReader.waitForThreadsShutdown();
 
             }
             // 后面还有会其它的reader类，

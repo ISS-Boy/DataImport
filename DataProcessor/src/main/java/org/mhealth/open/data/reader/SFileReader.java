@@ -46,7 +46,7 @@ public class SFileReader extends MThreadController implements MDataReader {
         // 初始化闭锁
         CountDownLatch startupThreadsLatch = new CountDownLatch(parts.length);
         CountDownLatch readCompleteLatch = new CountDownLatch(parts.length);
-        CountDownLatch shutdownCompleteLatch = new CountDownLatch(1);
+        CountDownLatch shutdownCompleteLatch = new CountDownLatch(parts.length);
 
         // 设置闭锁
         setStartupLatch(startupThreadsLatch);
@@ -71,10 +71,6 @@ public class SFileReader extends MThreadController implements MDataReader {
             readers.add(reader);
             readTherad.start();
         }
-        waitForThreadsStartup();
-        waitForThreadsShutdown();
-
-
 
 
     }
