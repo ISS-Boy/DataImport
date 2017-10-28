@@ -25,7 +25,7 @@ public class SConsumer {
     private static Logger loggerPA = Logger.getLogger("patients");
     private static Logger loggerPR = Logger.getLogger("procedures");
 
-    private final Set<String> Symeasures = ConfigurationSetting.measures.keySet();
+
 
     public static AtomicInteger written = new AtomicInteger(0);
 
@@ -36,37 +36,38 @@ public class SConsumer {
         //遍历队列,创建对应个数的消费者
         Application.squeueMaps.forEach(
                 (name, queue) -> {
-                        // 指定数据发送到kafka终端
-                        SProducer producer = new SKafkaProducer();
-//                MProducer producer = new MFileProducer(name);
+                  //指定数据发送到kafka终端
+//                SProducer producer = new SKafkaProducer();
+                    //指定数据写入文件
+                SProducer producer = new SFileProducer(name);
 //                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
                         switch (name) {
                             case "allergies":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerAL));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerAL));
                                 break;
                             case "careplans":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerCA));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerCA));
                                 break;
                             case "conditions":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerCO));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerCO));
                                 break;
                             case "encounters":
-                                threadPool.execute(new SConsumerThread(name,queue,producer, loggerEN));
+                                threadPool.execute(new SConsumerThread(queue,producer, loggerEN));
                                 break;
                             case "immunizations":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerIM));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerIM));
                                 break;
                             case "medications":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerME));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerME));
                                 break;
                             case "observations":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerOB));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerOB));
                                 break;
                             case "patients":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerPA));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerPA));
                                 break;
                             case "procedures":
-                                threadPool.execute(new SConsumerThread(name,queue, producer, loggerPR));
+                                threadPool.execute(new SConsumerThread(queue, producer, loggerPR));
                                 break;
                             default:
                                 break;

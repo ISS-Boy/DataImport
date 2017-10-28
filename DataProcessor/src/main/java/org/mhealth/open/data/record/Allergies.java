@@ -9,22 +9,6 @@ import java.util.Map;
 public class Allergies extends SRecord{
     private Map<String,String> allergies = new HashMap<>();
 
-    public Allergies(String[][] lines) {
-        String[] basic = lines[0];
-        try {
-            this.start = dateFormat.parse(basic[0]).toInstant();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        this.userId = basic[2];
-        this.encounter = basic[3];
-        for(int i = 0;i<lines.length;i++){
-            String[] line = lines[i];
-            //提取每行的第5，6列作为码和描述
-            allergies.put(line[4],line[5]);
-        }
-    }
-
     public Allergies(ArrayList<String[]> lines) {
         String[] basic = lines.get(0);
         try {

@@ -4,10 +4,9 @@ import java.text.ParseException;
 import java.time.Instant;
 
 public class Encounters extends SRecord{
-    private String eId;
 
     public Encounters(String[] line){
-        this.eId = line[0];
+        this.encounter= line[0];
         try {
             this.date = dateFormat.parse(line[1]).toInstant();
         } catch (ParseException e) {
@@ -23,8 +22,8 @@ public class Encounters extends SRecord{
 
     }
 
-    public String geteId() {
-        return eId;
+    public String encounter() {
+        return encounter;
     }
 
     public Instant getDate() {

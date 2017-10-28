@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.NANOS;
 
@@ -31,8 +32,11 @@ public class SRecord implements Delayed{
             sdate = this.date;
         if (this.start!=null)
             sdate = this.start;
-        return unit.convert(ConfigurationSetting.CLOCK.instant().until(sdate, HOURS) / (2*ConfigurationSetting.TICK_PER_SECOND), TimeUnit.HOURS);
+//        return unit.convert(ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS)/ (2*ConfigurationSetting.SYNTHEA_TICK_PER_SECOND) , TimeUnit.HOURS);
+        return ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS);
     }
+
+
 
     @Override
     public int compareTo(Delayed o) {

@@ -8,21 +8,16 @@ import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MDataReaderFactory;
 import org.mhealth.open.data.reader.SFileReader;
+import org.mhealth.open.data.record.Patients;
+import org.mhealth.open.data.record.SRecord;
 import org.mhealth.open.data.util.ClockService;
 
 import java.io.*;
 import java.time.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.time.temporal.ChronoUnit.*;
 
 /**
  * MFileReader Tester.
@@ -58,14 +53,23 @@ public class SFileReaderTest {
     public void testReadDataInQueue2() throws Exception {
 
 //        Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.initSyntheaContainer();
-        Application app = new Application();
+//        Application app = new Application();
         MDataReaderFactory factory = new MDataReaderFactory();
         MDataReader syntheaReader = factory.getReader(ConfigurationSetting.SYNTHEA_READER_CLASS);
         syntheaReader.readDataInQueue();
         SFileReader reader = (SFileReader)syntheaReader;
         reader.waitForThreadsStartup();
         reader.waitForThreadsShutdown();
-        Application.squeueMaps.get("observations").toString();
+
+
+    }
+
+    @Test
+    public void litterTest() throws Exception{
+        String[] line = "the-user-0,2018-01-01,1994-06-24,999-25-4765,S99910734,false,Mrs.,Alina272,Gutmann808,,Bartoletti476,M,hispanic,mexican,F,Lawrence MA US,434 Assunta Valleys Apt. 183 Andover MA 05544 US".split(",");
+        Patients s = new Patients(line);
+        long l = ConfigurationSetting.SYNTHEA_CLOCK.instant().until(s.getBirthdate(), DAYS);
+        System.out.println(l);
 
     }
 

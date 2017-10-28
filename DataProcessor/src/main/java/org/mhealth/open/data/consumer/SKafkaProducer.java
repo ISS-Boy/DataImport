@@ -12,7 +12,7 @@ public class SKafkaProducer implements SProducer{
     private static Logger logger = Logger.getLogger(SKafkaProducer.class);
     private KafkaProducer<String, MEvent> kafkaProducer;
     @Override
-    public void produce2Dest(String Symeasurename, SRecord record) {
+    public void produce2Dest(SRecord record) {
         //封装成指定格式
 
     }

@@ -10,7 +10,7 @@ public interface SProducer {
      * 发送数据到目标终端
      * @param record
      */
-    void produce2Dest(String Symeasurename, SRecord record);
+    void produce2Dest(SRecord record);
 
     /**
      * 关闭producer

@@ -1,0 +1,11 @@
+{
+    "namespace": "org.mhealth.open.data.avro",
+    "name": "SAllergie",
+    "type": "record",
+    "fields": [
+        {"name": "user_id", "type": ["string","null"] },
+        {"name": "start", "type": "string"},
+        {"name": "encounter", "type": "string"},
+        {"name": "allergies", "type":{"type":"map", "values":"string"}}
+    ]
+}

@@ -78,12 +78,10 @@ public class ConfigurationSetting {
         int tmpSyntheaTickTime = 1;
         try {
             prop.load(resource_in);
-            //tmpSDataRootPath = prop.getProperty("SDATA_ROOT_PATH");
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
             tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
             tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
             tmpMHealthReaderClass = Class.forName(prop.getProperty("MHEALTH_READER_CLASS_NAME"));
-            //tmpSyntheaClass = Class.forName(prop.getProperty("SYNTHRA_READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
             tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
@@ -110,7 +108,6 @@ public class ConfigurationSetting {
             e.printStackTrace();
         }
         DATA_ROOT_PATH = tmpDataRootPath;
-        //SDATA_ROOT_PATH = tmpSDataRootPath;
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         MHEALTH_READER_CLASS = tmpMHealthReaderClass;

@@ -68,7 +68,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                            <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
 
                         </configuration>
                     </execution>

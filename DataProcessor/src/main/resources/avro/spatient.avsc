@@ -1,0 +1,13 @@
+{
+    "namespace": "org.mhealth.open.data.avro",
+    "name": "SPatient",
+    "type": "record",
+    "fields": [
+        {"name": "user_id", "type": ["string","null"] },
+        {"name": "name", "type": "string"},
+        {"name": "birthdate", "type": "string"},
+        {"name": "deathdate", "type": ["string","null"]},
+        {"name": "gender", "type": "string"},
+        {"name": "race", "type": "string"}
+    ]
+}
