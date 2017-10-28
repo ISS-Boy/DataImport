@@ -27,6 +27,7 @@ public class Application {
      */
     private static Logger logger = Logger.getLogger(Application.class);
     public static Map<String, BlockingQueue> queueMaps = ConfigurationSetting.initSimpleContainer();
+    public static Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.initSyntheaContainer();
     public static void main(String[] args) throws InterruptedException {
 
         Collection<MDataReader> readers = startupReaderThreadsAndWait();

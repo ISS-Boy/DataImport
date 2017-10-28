@@ -1,0 +1,66 @@
+package org.mhealth.open.data.record;
+
+import org.mhealth.open.data.configuration.ConfigurationSetting;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+
+import static java.time.temporal.ChronoUnit.HOURS;
+
+public class Patients extends SRecord{
+    private String name;
+    private Instant birthdate;
+    private Instant deathdate;
+    private String gender;
+    private String race;
+
+    public Patients(String[] line) {
+        this.userId = line[0];
+        try {
+            this.birthdate = dateFormat.parse(line[1]).toInstant();
+            if(!line[2].equals("")) {
+                this.deathdate = dateFormat.parse(line[2]).toInstant();
+            }else deathdate = null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.name = line[7]+line[8];
+        this.race = line[12];
+        this.gender = line[14];
+
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Instant getBirthdate() {
+        return birthdate;
+    }
+
+    public Instant getDathdate() { return deathdate; }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getRace() {
+        return race;
+    }
+
+    public long getDelay(TimeUnit unit) {
+        // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
+        // 延迟时间为负数或零时被取出
+
+        return unit.convert(ConfigurationSetting.CLOCK.instant().until(this.birthdate, HOURS) / (2*ConfigurationSetting.TICK_PER_SECOND), TimeUnit.HOURS);
+    }
+
+    public String toString() {
+        return userId+"\n"+name+"\n"+gender+"\n"+race+"\n"+birthdate+" --- "+deathdate;
+    }
+}
