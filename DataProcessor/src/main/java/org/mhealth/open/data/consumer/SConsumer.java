@@ -3,8 +3,11 @@ package org.mhealth.open.data.consumer;
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
+import org.mhealth.open.data.record.Patients;
+import org.mhealth.open.data.record.SRecord;
 
 import java.util.Set;
+import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -33,14 +36,14 @@ public class SConsumer {
 
         ExecutorService threadPool = Executors.newCachedThreadPool();
 
-        //遍历队列,创建对应个数的消费者
+//        遍历队列,创建对应个数的消费者
         Application.squeueMaps.forEach(
                 (name, queue) -> {
                   //指定数据发送到kafka终端
-//                SProducer producer = new SKafkaProducer();
+                SProducer producer = new SKafkaProducer(name);
                     //指定数据写入文件
-                SProducer producer = new SFileProducer(name);
-//                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
+//                SProducer producer = new SFileProducer(name);
+
                         switch (name) {
                             case "allergies":
                                 threadPool.execute(new SConsumerThread(queue, producer, loggerAL));
@@ -73,7 +76,11 @@ public class SConsumer {
                                 break;
                         }
                 });
-        // 顺序执行已提交任务，不再接受新任务.
+//        SProducer producer = new SKafkaProducer("allergies");
+//        DelayQueue<SRecord> queue = (DelayQueue<SRecord>) Application.squeueMaps.get("allergies");
+//        threadPool.execute(new SConsumerThread(queue, producer, loggerAL));
+
+//         顺序执行已提交任务，不再接受新任务.
         threadPool.shutdown();
 
         // 任务执行结束或时间到期时关闭

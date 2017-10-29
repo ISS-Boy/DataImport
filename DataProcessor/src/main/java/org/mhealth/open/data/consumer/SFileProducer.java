@@ -1,5 +1,8 @@
 package org.mhealth.open.data.consumer;
 
+import org.mhealth.open.data.record.Allergies;
+import org.mhealth.open.data.record.Observations;
+import org.mhealth.open.data.record.Patients;
 import org.mhealth.open.data.record.SRecord;
 
 import java.io.BufferedWriter;
@@ -30,6 +33,21 @@ public class SFileProducer implements SProducer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void produce2Dest(Allergies record) {
+
+    }
+
+    @Override
+    public void produce2Dest(Observations record) {
+
+    }
+
+    @Override
+    public void produce2Dest(Patients record) {
 
     }
 

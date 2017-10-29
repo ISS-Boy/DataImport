@@ -3,6 +3,7 @@
     "name": "SLine",
     "type": "record",
     "fields": [
+        {"name": "timestamp", "type": "long"},
         {"name": "user_id", "type": ["string","null"] },
         {"name": "date", "type": ["string","null"] },
         {"name": "code", "type": ["string","null"] },

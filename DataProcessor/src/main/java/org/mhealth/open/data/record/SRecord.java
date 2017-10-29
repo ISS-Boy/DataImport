@@ -21,7 +21,12 @@ public class SRecord implements Delayed{
     protected String encounter = null;
     protected String description = null;
     protected String reasondescription = null;
+    protected long timestamp;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    public SRecord(){
+        timestamp = System.currentTimeMillis();
+    }
 
     @Override
     public long getDelay(TimeUnit unit) {
@@ -32,7 +37,7 @@ public class SRecord implements Delayed{
             sdate = this.date;
         if (this.start!=null)
             sdate = this.start;
-//        return unit.convert(ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS)/ (2*ConfigurationSetting.SYNTHEA_TICK_PER_SECOND) , TimeUnit.HOURS);
+//        return unit.convert(ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS) , TimeUnit.HOURS);
         return ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS);
     }
 
@@ -47,5 +52,49 @@ public class SRecord implements Delayed{
     @Override
     public String toString (){
         return userId+"\n"+date+"\n"+start+" --- "+stop+"\n"+encounter+"\n"+description+"\n"+reasondescription;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public Instant getDate() {
+        return date;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getRcode() {
+        return rcode;
+    }
+
+    public Instant getStart() {
+        return start;
+    }
+
+    public Instant getStop() {
+        return stop;
+    }
+
+    public String getEncounter() {
+        return encounter;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getReasondescription() {
+        return reasondescription;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
     }
 }

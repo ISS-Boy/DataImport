@@ -1,5 +1,8 @@
 package org.mhealth.open.data.consumer;
 
+import org.mhealth.open.data.record.Allergies;
+import org.mhealth.open.data.record.Observations;
+import org.mhealth.open.data.record.Patients;
 import org.mhealth.open.data.record.SRecord;
 
 /**
@@ -11,6 +14,10 @@ public interface SProducer {
      * @param record
      */
     void produce2Dest(SRecord record);
+    void produce2Dest(Allergies record);
+    void produce2Dest(Observations record);
+    void produce2Dest(Patients record);
+
 
     /**
      * 关闭producer

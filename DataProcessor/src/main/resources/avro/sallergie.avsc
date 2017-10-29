@@ -3,6 +3,7 @@
     "name": "SAllergie",
     "type": "record",
     "fields": [
+        {"name": "timestamp", "type": "long"},
         {"name": "user_id", "type": ["string","null"] },
         {"name": "start", "type": "string"},
         {"name": "encounter", "type": "string"},

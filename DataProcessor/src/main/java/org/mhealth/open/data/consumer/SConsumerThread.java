@@ -28,44 +28,35 @@ public class SConsumerThread implements Runnable {
     @Override
     public void run() {
         try {
-//            while (true) {
-//                switch (Symeasurename) {
-//                    case "allergies":
-//                        producer.produce2Dest((Allergies) measureQueue.take());
-//                        break;
-//                    case "careplans":
-//                        producer.produce2Dest((CarePlans) measureQueue.take());
-//                        break;
-//                    case "conditions":
-//                        producer.produce2Dest((Conditions) measureQueue.take());
-//                        break;
-//                    case "encounters":
-//                        producer.produce2Dest((Encounters) measureQueue.take());
-//                        break;
-//                    case "immunizations":
-//                        producer.produce2Dest((Immunizations) measureQueue.take());
-//                        break;
-//                    case "medications":
-//                        producer.produce2Dest((Medications) measureQueue.take());
-//                        break;
-//                    case "observations":
-//                        producer.produce2Dest((Observations) measureQueue.take());
-//                        break;
-//                    case "patients":
-//                        producer.produce2Dest((Patients) measureQueue.take());
-//                        break;
-//                    case "procedures":
-//                        producer.produce2Dest((procedures) measureQueue.take());
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-            for(int n=0;n<measureQueue.size();n++){
+
+            int size = measureQueue.size();
+            for(int n=0;n<size;n++){
                 SRecord record = (SRecord) measureQueue.take();
-                producer.produce2Dest(record);
-                logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + MConsumer.written.incrementAndGet());
+                if(record instanceof Allergies){
+                    Allergies allergies = (Allergies)record;
+                    producer.produce2Dest(allergies);
+                }
+
+                else if(record instanceof Observations){
+                    Observations observations = (Observations) record;
+                    producer.produce2Dest(observations);
+                }
+                else if(record instanceof Patients){
+                    Patients patients = (Patients) record;
+                    producer.produce2Dest(patients);
+                }
+                else
+                    producer.produce2Dest(record);
+
+                logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + SConsumer.written.incrementAndGet());
             }
+
+//            int size = measureQueue.size();
+//            for(int n=0;n<size;n++){
+//                SRecord record = (SRecord) measureQueue.take();
+//                producer.produce2Dest(record);
+//                logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + SConsumer.written.incrementAndGet());
+//            }
             producer.close();
         } catch (InterruptedException e) {
             e.printStackTrace();
