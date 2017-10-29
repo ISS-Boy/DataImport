@@ -46,11 +46,9 @@ public class ConfigurationSetting {
     public static final String END_TIME;
 
     // 用于记录reader的个数
-    @Deprecated
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
 
-    // 时钟每秒tick次数
-    public static final int TICK_PER_SECOND;
+    public static final int CUSHION_TIME ;
 
     static {
         // 读入properties
@@ -65,6 +63,7 @@ public class ConfigurationSetting {
         Class tmpReaderClass = null;
         String tmpStartTime=null,tmpEndTime = null;
         int tmpTickTime = 1;
+        int tmpCushionTime = 0;
         try {
             prop.load(resource_in);
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
@@ -74,6 +73,7 @@ public class ConfigurationSetting {
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
             tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
+            tmpCushionTime = Integer.valueOf(prop.getProperty("cushionTime"));
             // 这里开始读入measure相关配置项
             String[] measureNames = prop.getProperty("measureNames").split(",");
             for (String name : measureNames) {
@@ -89,9 +89,9 @@ public class ConfigurationSetting {
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         READER_CLASS = tmpReaderClass;
-        TICK_PER_SECOND = tmpTickTime;
+        CUSHION_TIME = tmpCushionTime;
         CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
-        logger.info(CLOCK.instant());
+        logger.info("initial clock: "+CLOCK.instant());
         END_TIME = tmpEndTime;
     }
 
@@ -105,22 +105,5 @@ public class ConfigurationSetting {
         return queueMaps;
     }
 
-    @Deprecated
-    private static int compareRecord(String record1, String record2) {
-
-        JSONObject jsonRecord1 = JSON.parseObject(record1);
-        JSONObject jsonRecord2 = JSON.parseObject(record2);
-        Date date1 = jsonRecord1
-                .getJSONObject("body")
-                .getJSONObject("effective_time_frame")
-                .getDate("date_time");
-
-        Date date2 = jsonRecord2
-                .getJSONObject("body")
-                .getJSONObject("effective_time_frame")
-                .getDate("date_time");
-        return -date1.compareTo(date2);
-
-    }
 
 }

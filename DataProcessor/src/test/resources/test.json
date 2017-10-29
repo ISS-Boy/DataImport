@@ -1,0 +1,6 @@
+{"body":{"effective_time_frame":{"date_time":"2017-01-01T12:00:45Z"},"systolic_blood_pressure":{"unit":"mmHg","value":116.4708763701894},"diastolic_blood_pressure":{"unit":"mmHg","value":71.00186413990784}}}
+{"body":{"effective_time_frame":{"date_time":"2017-01-01T12:01:11Z"},"heart_rate":{"unit":"beats/min","value":72.60928955403884}}}
+{"body":{"effective_time_frame":{"date_time":"2017-01-01T12:15:20Z"},"body_fat_percentage":{"unit":"%","value":29.93777277360545}}}
+{"body":{"effective_time_frame":{"date_time":"2017-01-01T12:00:17Z"},"body_temperature":{"unit":"C","value":36.59967727271914},"measurement_location":"oral"}}
+{"body":{"effective_time_frame":{"time_interval":{"start_date_time":"2017-01-01T12:09:48Z","duration":{"unit":"sec","value":301.79125853065017}}},"step_count":460}}
+{"body":{"effective_time_frame":{"time_interval":{"start_date_time":"2017-01-01T12:44:56Z","duration":{"unit":"h","value":7.8837229257297405}}},"sleep_duration":{"unit":"h","value":7.8837229257297405}}}

@@ -98,8 +98,7 @@ public class MFileReaderThread extends AbstractMThread {
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
                         MRecord mRecord = new MRecord(record, measureName);
-                        logger.info("read record in "+userGroupDir.getName()+"-"+measureName);
-//                        logger.info(StringFormat.);
+                        logger.info(String.format("read record in %s-%s",userGroupDir.getName(),measureName));
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }

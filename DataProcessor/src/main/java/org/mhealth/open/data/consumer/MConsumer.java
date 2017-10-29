@@ -2,9 +2,7 @@ package org.mhealth.open.data.consumer;
 
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
-import org.mhealth.open.data.reader.MRecord;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -24,7 +22,6 @@ public class MConsumer {
     private static Logger loggerHR = Logger.getLogger("heartRate");
     private static Logger loggerBF = Logger.getLogger("bodyFat");
 
-    private final Set<String> measures = ConfigurationSetting.measures.keySet();
 
     public static AtomicInteger written = new AtomicInteger(0);
 
@@ -51,6 +48,7 @@ public class MConsumer {
                                 threadPool.execute(new MConsumerThread(queue,producer, loggerHR));
                                 break;
                             default:
+                                threadPool.execute(new MConsumerThread(queue,producer,logger));
                                 break;
                         }
                     }
@@ -61,7 +59,7 @@ public class MConsumer {
 
         // 任务执行结束或时间到期时关闭
         try {
-            threadPool.awaitTermination(7L, TimeUnit.DAYS);
+            threadPool.awaitTermination(1L, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {

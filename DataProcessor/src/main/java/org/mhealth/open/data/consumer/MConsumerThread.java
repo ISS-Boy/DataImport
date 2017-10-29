@@ -13,7 +13,7 @@ import java.util.concurrent.DelayQueue;
  * @author just on 2017/10/9.
  */
 public class MConsumerThread implements Runnable {
-    private Logger logger;// = Logger.getLogger(MConsumerThread.class);
+    private Logger logger;
     private DelayQueue measureQueue;
     private MProducer producer;
 
@@ -23,10 +23,6 @@ public class MConsumerThread implements Runnable {
         this.producer = producer;
     }
 
-    public MConsumerThread(BlockingQueue measureQueue,Logger logger) {
-        this.measureQueue = (DelayQueue) measureQueue;
-        this.logger = logger;
-    }
 
     @Override
     public void run() {

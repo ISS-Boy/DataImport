@@ -18,8 +18,7 @@ public class MKafkaProducerPartitioner implements Partitioner {
     private static final long MILLIS_OF_DAY = 5 * 60 * 1000L;
     private Logger logger = Logger.getLogger(MKafkaProducerPartitioner.class);
 
-    public MKafkaProducerPartitioner() {
-    }
+
 
     @Override
     public void configure(Map<String, ?> configs) {

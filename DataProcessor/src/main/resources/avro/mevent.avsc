@@ -5,6 +5,12 @@
     "fields": [
         {"name": "user_id", "type": ["string","null"] },
         {"name": "timestamp", "type": "long"},
-        {"name": "measures" ,"type": {"type":"map","values":{"type":"map","values":"string"}}}
+        {"name": "measures" ,"type": {
+            "type":"map","values":{"type":"record", "name": "Measure", "fields":[
+                    {"name": "unit", "type": "string"},
+                    {"name": "value", "type": "float"}
+                ]}
+            }
+        }
     ]
 }
