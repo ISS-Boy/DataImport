@@ -1,0 +1,12 @@
+{
+    "namespace": "org.mhealth.open.data.avro",
+    "name": "SObservation",
+    "type": "record",
+    "fields": [
+        {"name": "timestamp", "type": "long"},
+        {"name": "user_id", "type": ["string","null"] },
+        {"name": "date", "type": "string"},
+        {"name": "encounter", "type": "string"},
+        {"name": "signs", "type": {"type": "map", "values": "float"}}
+    ]
+}

@@ -1,6 +1,7 @@
 package org.mhealth.open.data.reader;
 
 import org.apache.log4j.Logger;
+import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
@@ -22,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MFileReaderThread extends AbstractMThread {
     private static Logger logger = Logger.getLogger(MFileReaderThread.class);
     private File userGroupDir;
-    private Map<String, BlockingQueue> queueMaps;
 
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
     private Map<String, Boolean> tags = new HashMap<>();
@@ -31,10 +31,9 @@ public class MFileReaderThread extends AbstractMThread {
     private int finishFileCount = 0;
     private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
-    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps, AtomicInteger THREADS_COUNT) {
+    public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, AtomicInteger THREADS_COUNT) {
         super(startupLatch, readCompleteLatch);
         this.userGroupDir = userGroupDir;
-        this.queueMaps = queueMaps;
         this.THREADS_COUNT = THREADS_COUNT;
 
         // 先设置为全真
@@ -62,7 +61,7 @@ public class MFileReaderThread extends AbstractMThread {
 //                measureName = measureName.substring(0, measureName.indexOf("."));
 
                 // 获取measure队列
-                Queue measureQueue = Objects.requireNonNull(queueMaps.get(measureName), "队列未创建或文件名有误");
+                Queue measureQueue = Objects.requireNonNull(Application.queueMaps.get(measureName), "队列未创建或文件名有误");
 
                 // 开始正式读取文件
                 // 获取文件对应的起始offset指针
@@ -152,7 +151,6 @@ public class MFileReaderThread extends AbstractMThread {
                     Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
                 // 将用户数据读取到队列当中
-
                 readUserGroupDataInQueue();
 
                 synchronized (this.getCompleteLatch()) {

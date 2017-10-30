@@ -1,5 +1,6 @@
 package org.mhealth.open.data.monitor;
 
+import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.MeasureConfiguration;
 import org.mhealth.open.data.reader.AbstractMThread;
@@ -15,32 +16,17 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Created by dujijun on 2017/10/5.
  */
-public class MMonitorThread extends AbstractMThread {
+public class MMonitorThread extends MonitorThread {
 
-    private final Map<String, BlockingQueue> queueMaps;
     private final MFileReader reader;
 
-    MMonitorThread(MFileReader reader, CountDownLatch startupLatch, Map<String, BlockingQueue> queueMaps){
+    MMonitorThread(MFileReader reader, CountDownLatch startupLatch){
         super(startupLatch);
-        this.queueMaps = queueMaps;
         this.reader = reader;
     }
 
-    @Override
-    public void run() {
-        startupComplete();
-
-        // 监控主逻辑
-        try {
-            monitor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     // 这里开始监控主逻辑
-    private void monitor() throws InterruptedException {
+    protected void monitor() throws InterruptedException {
         // 首先监控所有队列是否满足数据读入阈值需求，
         //  如果满足，则看Reader对象中的线程是否还处于读数据的状态
         //      如果Reader中的线程还处于读数据的状态，则sleep一段时间后在观察队列情况
@@ -55,12 +41,15 @@ public class MMonitorThread extends AbstractMThread {
             // , 这里应该需要阻塞一会
             reader.waitForThreadsWorkDown();
 
-            queueMaps.forEach((s, v) -> {
-                float currentSize = v.size();
-                float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
+            Application.queueMaps.forEach((s, v) -> {
+                // 如果属于MHealth的数据
+                if(measures.keySet().contains(s)) {
+                    float currentSize = v.size();
+                    float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
 
-                // 当目前元素的比率小于阈值时，则判断需要导入数据
-                needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
+                    // 当目前元素的比率小于阈值时，则判断需要导入数据
+                    needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
+                }
             });
 
             // 重置完毕锁
@@ -72,7 +61,7 @@ public class MMonitorThread extends AbstractMThread {
             reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
             Thread.sleep(1000);
         }
-        queueMaps.forEach(
+        Application.queueMaps.forEach(
                 (measureName, queue) -> {
                     for(int i = 0; i < ConfigurationSetting.measures.get(measureName).getProducerNums(); i++)
                         queue.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));

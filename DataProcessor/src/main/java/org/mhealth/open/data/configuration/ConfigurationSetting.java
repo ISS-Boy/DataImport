@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MRecord;
+import org.mhealth.open.data.record.SRecord;
 import org.mhealth.open.data.util.ClockService;
 
 import java.io.IOException;
@@ -24,8 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConfigurationSetting {
     private static Logger logger = Logger.getLogger(ConfigurationSetting.class);
+
     // 数据导入的路径
     public static final String DATA_ROOT_PATH;
+
+    public static final String SDATA_ROOT_PATH;
 
     // 判断线程是否应该阻塞的时间间隔
     public static final long BLOCK_WAIT_TIME;
@@ -33,21 +37,28 @@ public class ConfigurationSetting {
     // 队列最大长度
     public static final int MAX_QUEUE_SIZE;
 
-    // 数据读取器的类
-    public static final Class<? extends MDataReader> READER_CLASS;
+    // MHealth数据读取器的类
+    public static final Class<? extends MDataReader> MHEALTH_READER_CLASS;
+
+    // synthea数据读取器的类
+    public static final Class<? extends MDataReader> SYNTHEA_READER_CLASS;
 
     // 包装所有和度量相关配置项
     public static final Map<String, MeasureConfiguration> measures = new HashMap<>();
-
+    public static final Set<String> symeasures = new HashSet<>();
     // 时钟
     public static final ClockService CLOCK;
-
+    public static final ClockService SYNTHEA_CLOCK;
     // 终止时间->毒丸
     public static final String END_TIME;
-
+    public static final String SYNTHEA_END_TIME;
     // 用于记录reader的个数
+    @Deprecated
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
 
+    // 时钟每秒tick次数
+    public static final int TICK_PER_SECOND;
+    public static final int SYNTHEA_TICK_PER_SECOND;
     public static final int CUSHION_TIME ;
 
     static {
@@ -60,16 +71,22 @@ public class ConfigurationSetting {
         String tmpDataRootPath = null;
         long tmpReadingIntervalMillis = 0l;
         int tmpMaxQueueSize = 0;
-        Class tmpReaderClass = null;
+        Class tmpMHealthReaderClass = null;
+        //Class tmpSyntheaClass = null;
         String tmpStartTime=null,tmpEndTime = null;
         int tmpTickTime = 1;
+
+        String tmpSyntheaDataRootPath = null;
+        Class tmpSyntheaClass = null;
+        String tmpSyntheaStartTime=null,tmpSyntheaEndTime = null;
+        int tmpSyntheaTickTime = 1;
         int tmpCushionTime = 0;
         try {
             prop.load(resource_in);
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
             tmpReadingIntervalMillis = Long.valueOf(prop.getProperty("BLOCK_WAIT_TIME"));
             tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
-            tmpReaderClass = Class.forName(prop.getProperty("READER_CLASS_NAME"));
+            tmpMHealthReaderClass = Class.forName(prop.getProperty("MHEALTH_READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
             tmpEndTime = prop.getProperty("endTime");
             tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
@@ -82,17 +99,35 @@ public class ConfigurationSetting {
                 int producerNums = Integer.valueOf(prop.getProperty(name+".producerNums"));
                 measures.put(name, new MeasureConfiguration(name, readingFrequency, queueImportThreshold,producerNums));
             }
+            tmpSyntheaDataRootPath = prop.getProperty("SDATA_ROOT_PATH");
+            tmpSyntheaClass = Class.forName(prop.getProperty("SYNTHRA_READER_CLASS_NAME"));
+            tmpSyntheaStartTime = prop.getProperty("SyntheastartTime");
+            tmpSyntheaEndTime = prop.getProperty("SyntheaendTime");
+            tmpSyntheaTickTime = Integer.valueOf(prop.getProperty("SyntheatickPerSecond"));
+
+            String[] SymeasureNames = prop.getProperty("SyntheaNames").split(",");
+            for (String name :SymeasureNames){
+                symeasures.add(name);
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         DATA_ROOT_PATH = tmpDataRootPath;
         BLOCK_WAIT_TIME = tmpReadingIntervalMillis;
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
-        READER_CLASS = tmpReaderClass;
+        MHEALTH_READER_CLASS = tmpMHealthReaderClass;
+        SYNTHEA_READER_CLASS = tmpSyntheaClass;
+        TICK_PER_SECOND = tmpTickTime;
         CUSHION_TIME = tmpCushionTime;
         CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
         logger.info("initial clock: "+CLOCK.instant());
         END_TIME = tmpEndTime;
+
+        SDATA_ROOT_PATH = tmpSyntheaDataRootPath;
+        SYNTHEA_TICK_PER_SECOND = tmpSyntheaTickTime;
+        SYNTHEA_CLOCK = new ClockService(Instant.parse(tmpSyntheaStartTime),tmpSyntheaTickTime);
+        logger.info(SYNTHEA_CLOCK.instant());
+        SYNTHEA_END_TIME = tmpSyntheaEndTime;
     }
 
     public static Map<String, BlockingQueue> getSimpleContainer() {
@@ -103,6 +138,16 @@ public class ConfigurationSetting {
                         new DelayQueue<MRecord>())
         );
         return queueMaps;
+    }
+    //初始化Synthea容器
+    public static Map<String, BlockingQueue> getSyntheaContainer() {
+
+        Map<String, BlockingQueue> syntheaqueueMaps = new HashMap<>();
+        symeasures.forEach(name ->
+                syntheaqueueMaps.put(name,
+                        new DelayQueue<SRecord>())
+        );
+        return syntheaqueueMaps;
     }
 
 
