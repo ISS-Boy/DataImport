@@ -28,20 +28,20 @@ public class Application {
      * @param args
      */
     private static Logger logger = Logger.getLogger(Application.class);
-    public static Map<String, BlockingQueue> queueMaps = ConfigurationSetting.initSimpleContainer();
-    public static Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.initSyntheaContainer();
+    public static Map<String, BlockingQueue> queueMaps = ConfigurationSetting.getSimpleContainer();
+    public static Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.getSyntheaContainer();
     public static void main(String[] args) throws InterruptedException {
 
-//        Collection<MDataReader> readers = startupReaderThreadsAndWait();
-//
-//        startupMonitorThreadsAndWait(readers);
-//
-//        startupDataExportThreads();
+        Collection<MDataReader> readers = startupReaderThreadsAndWait();
+
+        startupMonitorThreadsAndWait(readers);
+
+        startupDataExportThreads();
 
         //Synthea数据读入数据到队列，再出队到文件测试
 
-        startupSReaderThreads();
-        startupSDataExportThreads();
+//        startupSReaderThreads();
+//        startupSDataExportThreads();
 
     }
     // 开启读数据进程并等待
@@ -74,33 +74,35 @@ public class Application {
     // 开启数据导出线程
     private static void startupDataExportThreads() {
         // 为队列设置消费线程
-        MConsumer consumer = new MConsumer();
-        consumer.consumeData();
+        MConsumer mconsumer = new MConsumer();
+        mconsumer.consumeData();
+        SConsumer sconsumer = new SConsumer();
+        sconsumer.consumeData();
         logger.info("关闭消费者线程");
 
     }
 
     //Synthea测试
 
-    private static void startupSReaderThreads() throws InterruptedException {
-        MDataReaderFactory factory = new MDataReaderFactory();
-        // 启动SyntheaReader
-        MDataReader syntheaReader = factory.getReader(ConfigurationSetting.SYNTHEA_READER_CLASS);
-        syntheaReader.readDataInQueue();
-
-        // 真正开启reader
-        logger.info("start reading");
-        SFileReader reader = (SFileReader)syntheaReader;
-        reader.waitForThreadsStartup();
-        reader.waitForThreadsShutdown();
-    }
-
-    private static void startupSDataExportThreads() {
-        // 为队列设置消费线程
-        SConsumer consumer = new SConsumer();
-        consumer.consumeData();
-        logger.info("关闭消费者线程");
-
-    }
+//    private static void startupSReaderThreads() throws InterruptedException {
+//        MDataReaderFactory factory = new MDataReaderFactory();
+//        // 启动SyntheaReader
+//        MDataReader syntheaReader = factory.getReader(ConfigurationSetting.SYNTHEA_READER_CLASS);
+//        syntheaReader.readDataInQueue();
+//
+//        // 真正开启reader
+//        logger.info("start reading");
+//        SFileReader reader = (SFileReader)syntheaReader;
+//        reader.waitForThreadsStartup();
+//        reader.waitForThreadsShutdown();
+//    }
+//
+//    private static void startupSDataExportThreads() {
+//        // 为队列设置消费线程
+//        SConsumer sconsumer = new SConsumer();
+//        sconsumer.consumeData();
+//        logger.info("关闭消费者线程");
+//
+//    }
 
 }

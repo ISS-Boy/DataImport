@@ -57,7 +57,7 @@ public class SConsumerThread implements Runnable {
 //                producer.produce2Dest(record);
 //                logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + SConsumer.written.incrementAndGet());
 //            }
-            producer.close();
+//            producer.close();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

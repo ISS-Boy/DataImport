@@ -76,9 +76,7 @@ public class SConsumer {
                                 break;
                         }
                 });
-//        SProducer producer = new SKafkaProducer("allergies");
-//        DelayQueue<SRecord> queue = (DelayQueue<SRecord>) Application.squeueMaps.get("allergies");
-//        threadPool.execute(new SConsumerThread(queue, producer, loggerAL));
+
 
 //         顺序执行已提交任务，不再接受新任务.
         threadPool.shutdown();
