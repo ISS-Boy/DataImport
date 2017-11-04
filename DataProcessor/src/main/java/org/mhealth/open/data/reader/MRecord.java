@@ -45,6 +45,7 @@ public class MRecord implements Delayed {
         this.timestamp = System.currentTimeMillis();
     }
     private MEvent parse(String json) {
+        long timeOffsetMillis = ConfigurationSetting.DURATION*ConfigurationSetting.repeat;
 
         Map<String, Measure> measures = new HashMap<>();
         MEvent mEvent = new MEvent();
@@ -57,9 +58,9 @@ public class MRecord implements Delayed {
         body.forEach((key, values) -> {
             if (key.equals("effective_time_frame")) {
                 if (((JSONObject) values).containsKey("date_time")) {
-                    mEvent.setTimestamp(((JSONObject) values).getDate("date_time").getTime());
+                    mEvent.setTimestamp(((JSONObject) values).getDate("date_time").getTime()+timeOffsetMillis);
                 } else {
-                    mEvent.setTimestamp(((JSONObject) values).getJSONObject("time_interval").getDate("start_date_time").getTime());
+                    mEvent.setTimestamp(((JSONObject) values).getJSONObject("time_interval").getDate("start_date_time").getTime()+timeOffsetMillis);
                     measures.put("duration", construct(((JSONObject) values).getJSONObject("time_interval").getJSONObject("duration")));
                 }
             } else if (key.equals("sleep_duration")) {

@@ -5,15 +5,14 @@ import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.exception.UnhandledQueueOperationException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -27,8 +26,8 @@ public class MFileReaderThread extends AbstractMThread {
     private Map<String, Long> fileOffsetRecorder = new HashMap<>();
     private Map<String, Boolean> tags = new HashMap<>();
     private final AtomicInteger THREADS_COUNT;
-    private boolean end = false;
-    private int finishFileCount = 0;
+    private volatile boolean end = false;
+    private volatile int finishFileCount = 0;
     private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
     public MFileReaderThread(CountDownLatch startupLatch, CountDownLatch readCompleteLatch, File userGroupDir, Map<String, BlockingQueue> queueMaps, AtomicInteger THREADS_COUNT) {
@@ -98,7 +97,7 @@ public class MFileReaderThread extends AbstractMThread {
                         // 1、直接当作字符串 ☑️
                         // 2、转换成对象来进行处理
                         MRecord mRecord = new MRecord(record, measureName);
-                        logger.info(String.format("read record in %s-%s",userGroupDir.getName(),measureName));
+                        logger.info(String.format("read record in %s-%s", userGroupDir.getName(), measureName));
                         if (!measureQueue.offer(mRecord)) {
                             throw new UnhandledQueueOperationException("无法进入队列，请检查队列容量是否出现异常");
                         }
@@ -138,7 +137,9 @@ public class MFileReaderThread extends AbstractMThread {
         this.tags = tags;
         while (!blocking.compareAndSet(true, false)) ;
     }
-
+    public void setBlocking(boolean flag){
+        blocking.set(flag);
+    }
     @Override
     public void run() {
         startupComplete();
@@ -158,20 +159,32 @@ public class MFileReaderThread extends AbstractMThread {
                 synchronized (this.getCompleteLatch()) {
                     // 当读取完毕后解锁
                     workComplete();
-                    // 如果结束, 则将全局记录的Reader数量减一
-                    if (isEnd()) {
-                        this.THREADS_COUNT.getAndDecrement();
-                        break;
-                    }
+                }
+                // 如果结束, 则将全局记录的Reader数量减一
+                if (isEnd()) {
+                    this.THREADS_COUNT.getAndDecrement();
+                    logger.info("read all of userGroup: " + userGroupDir.getName());
+                    blockAndResetState();
                 }
 
-                while (!blocking.compareAndSet(false, true)) ;
+                blocking.set(true);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         shutdownComplete();
+    }
+
+    public void blockAndResetState() throws InterruptedException {
+        synchronized (this) {
+            this.wait();
+            for (String fileName : fileOffsetRecorder.keySet()) {
+                fileOffsetRecorder.put(fileName, 0L);
+            }
+            finishFileCount = 0;
+            end = false;
+        }
     }
 
     @Override

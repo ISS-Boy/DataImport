@@ -4,13 +4,19 @@ import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.MeasureConfiguration;
 import org.mhealth.open.data.reader.AbstractMThread;
 import org.mhealth.open.data.reader.MFileReader;
+import org.mhealth.open.data.reader.MFileReaderThread;
 import org.mhealth.open.data.reader.MRecord;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -20,11 +26,13 @@ public class MMonitorThread extends AbstractMThread {
     private final Map<String, BlockingQueue> queueMaps;
     private final MFileReader reader;
 
-    MMonitorThread(MFileReader reader, CountDownLatch startupLatch, Map<String, BlockingQueue> queueMaps){
+
+    MMonitorThread(MFileReader reader, CountDownLatch startupLatch, Map<String, BlockingQueue> queueMaps) {
         super(startupLatch);
         this.queueMaps = queueMaps;
         this.reader = reader;
     }
+
 
     @Override
     public void run() {
@@ -32,7 +40,9 @@ public class MMonitorThread extends AbstractMThread {
 
         // 监控主逻辑
         try {
+
             monitor();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -49,34 +59,47 @@ public class MMonitorThread extends AbstractMThread {
 
         Map<String, MeasureConfiguration> measures = ConfigurationSetting.measures;
         Map<String, Boolean> needImportMeasure = new HashMap<>();
-        while(!reader.isAllEnd()){
+        while (true) {
+            while (!reader.isAllEnd()) {
 
-            // 等待读取完成之后
-            // , 这里应该需要阻塞一会
-            reader.waitForThreadsWorkDown();
+                // 等待读取完成之后
+                // , 这里应该需要阻塞一会
+                reader.waitForThreadsWorkDown();
 
-            queueMaps.forEach((s, v) -> {
-                float currentSize = v.size();
-                float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
+                queueMaps.forEach((s, v) -> {
+                    float currentSize = v.size();
+                    float rate = currentSize / ConfigurationSetting.MAX_QUEUE_SIZE;
 
-                // 当目前元素的比率小于阈值时，则判断需要导入数据
-                needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
-            });
-
-            // 重置完毕锁
-            CountDownLatch completeLatch = new CountDownLatch(reader.CURRENT_READER_COUNT.get());
-            reader.resetCompleteLatchs(completeLatch);
-            reader.setCompleteLatch(completeLatch);
-
-            // 设置需要读取tag
-            reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
-            Thread.sleep(1000);
-        }
-        queueMaps.forEach(
-                (measureName, queue) -> {
-                    for(int i = 0; i < ConfigurationSetting.measures.get(measureName).getProducerNums(); i++)
-                        queue.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
-
+                    // 当目前元素的比率小于阈值时，则判断需要导入数据
+                    needImportMeasure.put(s, rate < measures.get(s).getQueueImportThreshold());
                 });
+
+                // 重置完毕锁
+                CountDownLatch completeLatch = new CountDownLatch(reader.CURRENT_READER_COUNT.get());
+                reader.resetCompleteLatchs(completeLatch);
+                reader.setCompleteLatch(completeLatch);
+
+                // 设置需要读取tag
+                reader.setTagAndWaitupThreadsToReadData(needImportMeasure);
+                Thread.sleep(1000);
+            }
+
+            reader.CURRENT_READER_COUNT.set(ConfigurationSetting.READER_COUNT.get());
+            ConfigurationSetting.repeat++;
+            for (MFileReaderThread task : reader.getReaderThreads()) {
+                synchronized (task) {
+                    task.notify();
+                }
+            }
+            // 保证唤醒所有线程再进行后续操作
+            Thread.sleep(6000);
+        }
+//        queueMaps.forEach(
+//                (measureName, queue) -> {
+//                    for (int i = 0; i < ConfigurationSetting.measures.get(measureName).getProducerNums(); i++)
+//                        queue.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
+//
+//                });
     }
+
 }

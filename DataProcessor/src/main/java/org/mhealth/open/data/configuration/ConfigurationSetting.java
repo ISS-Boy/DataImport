@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.DelayQueue;
@@ -45,10 +46,14 @@ public class ConfigurationSetting {
     // 终止时间->毒丸
     public static final String END_TIME;
 
+    public static final Long DURATION ;
+
     // 用于记录reader的个数
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
 
     public static final int CUSHION_TIME ;
+
+    public volatile static int repeat = 0;
 
     static {
         // 读入properties
@@ -93,6 +98,7 @@ public class ConfigurationSetting {
         CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
         logger.info("initial clock: "+CLOCK.instant());
         END_TIME = tmpEndTime;
+        DURATION = Instant.parse(tmpStartTime).until(Instant.parse(tmpEndTime), ChronoUnit.MILLIS);
     }
 
     public static Map<String, BlockingQueue> getSimpleContainer() {
