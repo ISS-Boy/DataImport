@@ -21,8 +21,8 @@ import static java.util.stream.Collectors.counting;
  */
 public class LogParser {
     public static void main(String[] args) throws IOException {
-//        BufferedWriter writer = new BufferedWriter(new FileWriter("./write-count"));
-        BufferedWriter writer = new BufferedWriter(new FileWriter("./read-count"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("./write-count"));
+//        BufferedWriter writer = new BufferedWriter(new FileWriter("./read-count"));
 //        String write = /home/just/IdeaProjects/DataImport/logs/blood-pressure.log /home/just/IdeaProjects/DataImport/logs/heart-rate.log /home/just/IdeaProjects/DataImport/logs/body-fat.log
         TreeMap<String, Long> sortedCount = new TreeMap<>();
         String[] fileName = args;

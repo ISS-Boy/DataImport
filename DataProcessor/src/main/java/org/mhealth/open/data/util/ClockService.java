@@ -1,5 +1,7 @@
 package org.mhealth.open.data.util;
 
+import org.mhealth.open.data.configuration.ConfigurationSetting;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -11,14 +13,14 @@ import java.util.Objects;
 public final class ClockService implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // 缓冲时间,用于生产者读取数据到队列中
-    private static final long CUSHION_TIME = 60L;
+
+
     private final Instant startDateTime;
     private final long initialTimestamp;
     private final int tickPerSecond;
 
     public ClockService(Instant startDateTime, int tickPerSecond) {
-        this.startDateTime = startDateTime.minus(CUSHION_TIME * tickPerSecond, ChronoUnit.SECONDS);
+        this.startDateTime = startDateTime.minus(ConfigurationSetting.CUSHION_TIME * tickPerSecond, ChronoUnit.SECONDS);
         this.initialTimestamp = System.currentTimeMillis();
         this.tickPerSecond = tickPerSecond;
 

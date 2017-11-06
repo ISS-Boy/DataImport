@@ -25,10 +25,11 @@ public class MFileReader extends MThreadController implements MDataReader {
     private List<MFileReaderThread> readers;
     public final AtomicInteger CURRENT_READER_COUNT = new AtomicInteger(0);
 
-
     public MFileReader() {
         readers = new ArrayList<>();
     }
+
+
 
     public List<MFileReaderThread> getReaderThreads() {
         return readers;
@@ -42,7 +43,7 @@ public class MFileReader extends MThreadController implements MDataReader {
 
         File[] userGroups = rootDir.listFiles(File::isDirectory);
 
-        // 设置全局读取线程个数，它用来判断设置毒丸结束，还可以用来计算一轮读取完毕锁
+        // 设置全局读取线程个数，还可以用来计算一轮读取完毕锁
         int threadsCount = userGroups.length;
         ConfigurationSetting.READER_COUNT.set(threadsCount);
         CURRENT_READER_COUNT.set(threadsCount);
@@ -78,9 +79,16 @@ public class MFileReader extends MThreadController implements MDataReader {
         }
         return true;
     }
-
+    public boolean isAllBlocking(){
+        for(MFileReaderThread readerThread :readers){
+            if(!readerThread.getBlocking())
+                return false;
+        }
+        return true;
+    }
 
     public void resetCompleteLatchs(CountDownLatch completeLatch) {
         readers.forEach(t -> t.resetCompleteLatch(completeLatch));
     }
+
 }

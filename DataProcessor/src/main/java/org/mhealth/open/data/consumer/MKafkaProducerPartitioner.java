@@ -30,9 +30,11 @@ public class MKafkaProducerPartitioner implements Partitioner {
         int numPartitions = partitions.size();
         int partitionNum = 0;
         try {
-            partitionNum = (int) ((long) ((MEvent) value).get("timestamp") / MILLIS_OF_DAY);//还要加一步，取天
-
-        } catch (Exception e) {
+            MEvent e = ((MEvent) value);
+            int userCode = Math.abs(e.getUserId().hashCode());
+            int timeCode = (int) ((long) (e.get("timestamp")));
+            partitionNum = (int)((userCode + timeCode) / MILLIS_OF_DAY);//还要加一步，取天
+        }  catch (Exception e) {
             partitionNum = ((MEvent) value).get("timestamp").hashCode();
         }
         logger.info("the message sendTo topic:" + topic + " and the partitionNum:" + partitionNum % numPartitions);

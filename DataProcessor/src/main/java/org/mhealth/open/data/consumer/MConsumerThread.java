@@ -29,10 +29,10 @@ public class MConsumerThread implements Runnable {
         try {
             while (true) {
                 MRecord record = (MRecord) measureQueue.take();
-                if (record.isPoisonPill()){
-                    producer.close();
-                    break;
-                }
+//                if (record.isPoisonPill()){
+//                    producer.close();
+//                    break;
+//                }
                 producer.produce2Dest(record);
                 logger.info("consume: " + record + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + MConsumer.written.incrementAndGet());
 
