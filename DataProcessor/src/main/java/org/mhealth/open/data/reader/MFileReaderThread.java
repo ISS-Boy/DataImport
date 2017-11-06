@@ -137,9 +137,11 @@ public class MFileReaderThread extends AbstractMThread {
         this.tags = tags;
         while (!blocking.compareAndSet(true, false)) ;
     }
-    public void setBlocking(boolean flag){
-        blocking.set(flag);
+
+    public boolean isBlocking() {
+        return blocking.get();
     }
+
     @Override
     public void run() {
         startupComplete();
@@ -156,10 +158,10 @@ public class MFileReaderThread extends AbstractMThread {
 
                 readUserGroupDataInQueue();
 
-                synchronized (this.getCompleteLatch()) {
+//                synchronized (this.getCompleteLatch()) {
                     // 当读取完毕后解锁
                     workComplete();
-                }
+//                }
                 // 如果结束, 则将全局记录的Reader数量减一
                 if (isEnd()) {
                     this.THREADS_COUNT.getAndDecrement();
@@ -167,7 +169,7 @@ public class MFileReaderThread extends AbstractMThread {
                     blockAndResetState();
                 }
 
-                blocking.set(true);
+                while(!blocking.compareAndSet(false,true));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

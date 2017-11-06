@@ -78,6 +78,14 @@ public class MFileReader extends MThreadController implements MDataReader {
         return true;
     }
 
+    public boolean isAllBlocking(){
+        for (MFileReaderThread readerThread : readers) {
+            if (!readerThread.isBlocking())
+                return false;
+        }
+        return true;
+    }
+
 
     public void resetCompleteLatchs(CountDownLatch completeLatch) {
         readers.forEach(t -> t.resetCompleteLatch(completeLatch));

@@ -92,7 +92,7 @@ public class MMonitorThread extends AbstractMThread {
                 }
             }
             // 保证唤醒所有线程再进行后续操作
-            Thread.sleep(6000);
+            while(!reader.isAllBlocking());
         }
 //        queueMaps.forEach(
 //                (measureName, queue) -> {
