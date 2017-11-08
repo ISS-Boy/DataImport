@@ -80,7 +80,7 @@ public class MFileReader extends MThreadController implements MDataReader {
     }
     public boolean isAllBlocking(){
         for(MFileReaderThread readerThread :readers){
-            if(!readerThread.getBlocking())
+            if(!readerThread.isBlocking())
                 return false;
         }
         return true;

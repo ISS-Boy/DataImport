@@ -66,7 +66,7 @@ public class SFileReader extends MThreadController implements MDataReader {
                     break;
             }
 //            SFileReaderThread reader = new SFileReaderThread(startupThreadsLatch,readCompleteLatch,shutdownCompleteLatch,parts[8],SFileReader::lineReader);
-            Thread readTherad = new Thread(reader);
+            Thread readTherad = new Thread(reader,part.getName());
             readers.add(reader);
             readTherad.start();
         }

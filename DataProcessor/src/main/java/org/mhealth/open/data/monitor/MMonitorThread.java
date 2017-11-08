@@ -77,7 +77,7 @@ public class MMonitorThread extends MonitorThread {
                 }
             }
             // 保证唤醒所有线程再进行后续操作
-            while(!reader.isAllBlocking());
+            while (!reader.isAllBlocking()) ;
         }
 //        queueMaps.forEach(
 //                (measureName, queue) -> {
