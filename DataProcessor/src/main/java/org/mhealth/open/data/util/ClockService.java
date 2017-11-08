@@ -13,7 +13,7 @@ import java.util.Objects;
 public final class ClockService implements Serializable {
     private static final long serialVersionUID = 1L;
 
-
+    // 缓冲时间,用于生产者读取数据到队列中
 
     private final Instant startDateTime;
     private final long initialTimestamp;

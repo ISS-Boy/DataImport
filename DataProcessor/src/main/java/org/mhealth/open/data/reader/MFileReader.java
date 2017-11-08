@@ -25,11 +25,10 @@ public class MFileReader extends MThreadController implements MDataReader {
     private List<MFileReaderThread> readers;
     public final AtomicInteger CURRENT_READER_COUNT = new AtomicInteger(0);
 
+
     public MFileReader() {
         readers = new ArrayList<>();
     }
-
-
 
     public List<MFileReaderThread> getReaderThreads() {
         return readers;
@@ -90,5 +89,4 @@ public class MFileReader extends MThreadController implements MDataReader {
     public void resetCompleteLatchs(CountDownLatch completeLatch) {
         readers.forEach(t -> t.resetCompleteLatch(completeLatch));
     }
-
 }

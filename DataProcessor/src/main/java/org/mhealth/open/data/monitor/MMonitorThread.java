@@ -69,7 +69,6 @@ public class MMonitorThread extends MonitorThread {
                 Thread.sleep(1000);
             }
 
-
             reader.CURRENT_READER_COUNT.set(ConfigurationSetting.READER_COUNT.get());
             ConfigurationSetting.repeat++;
             for (MFileReaderThread task : reader.getReaderThreads()) {
@@ -78,8 +77,13 @@ public class MMonitorThread extends MonitorThread {
                 }
             }
             // 保证唤醒所有线程再进行后续操作
-
+            while(!reader.isAllBlocking());
         }
-
+//        queueMaps.forEach(
+//                (measureName, queue) -> {
+//                    for (int i = 0; i < ConfigurationSetting.measures.get(measureName).getProducerNums(); i++)
+//                        queue.offer(new MRecord(true, Instant.parse(ConfigurationSetting.END_TIME)));
+//
+//                });
     }
 }

@@ -13,7 +13,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -136,9 +135,11 @@ public class MFileReaderThread extends AbstractMThread {
         this.tags = tags;
         while (!blocking.compareAndSet(true, false)) ;
     }
-    public boolean getBlocking(){
+
+    public boolean isBlocking() {
         return blocking.get();
     }
+
     @Override
     public void run() {
         startupComplete();
@@ -152,19 +153,22 @@ public class MFileReaderThread extends AbstractMThread {
                     Thread.sleep(ConfigurationSetting.BLOCK_WAIT_TIME);
 
                 // 将用户数据读取到队列当中
+
                 readUserGroupDataInQueue();
 
                 synchronized (this.getCompleteLatch()) {
                     // 当读取完毕后解锁
                     workComplete();
-                }
+//                }
                 // 如果结束, 则将全局记录的Reader数量减一
                 if (isEnd()) {
                     this.THREADS_COUNT.getAndDecrement();
                     logger.info("read all of userGroup: " + userGroupDir.getName());
                     blockAndResetState();
                 }
+
                 while(!blocking.compareAndSet(false,true));
+
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

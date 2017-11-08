@@ -54,6 +54,7 @@ public class ConfigurationSetting {
     public static final String END_TIME;
     public static final String SYNTHEA_END_TIME;
 
+
     public static final Long DURATION ;
 
     // 用于记录reader的个数
