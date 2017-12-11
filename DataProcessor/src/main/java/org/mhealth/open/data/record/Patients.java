@@ -16,6 +16,8 @@ public class Patients extends SRecord{
     private Instant deathdate;
     private String gender;
     private String race;
+    private String birthplace;
+    private String address;
 
     public Patients(String[] line) {
         this.userId = line[0];
@@ -30,6 +32,8 @@ public class Patients extends SRecord{
         this.name = line[7]+line[8];
         this.race = line[12];
         this.gender = line[14];
+        this.birthplace = line[15];
+        this.address = line[16];
 
     }
 
@@ -66,6 +70,6 @@ public class Patients extends SRecord{
     }
 
     public String toString() {
-        return userId+"\n"+name+"\n"+gender+"\n"+race+"\n"+birthdate+" --- "+deathdate;
+        return userId+"\n"+name+"\n"+gender+"\n"+race+"\n"+birthdate+" --- "+deathdate+"\n"+birthplace+"\n"+address;
     }
 }
