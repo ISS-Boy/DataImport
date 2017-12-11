@@ -58,9 +58,7 @@ public class Patients extends SRecord{
     public long getDelay(TimeUnit unit) {
         // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
         // 延迟时间为负数或零时被取出
-
-//        return unit.convert(ConfigurationSetting.SYNTHEA_CLOCK.instant().until(this.birthdate, HOURS), TimeUnit.HOURS);
-        return ConfigurationSetting.SYNTHEA_CLOCK.instant().until(this.birthdate, HOURS);
+        return Math.subtractExact(this.birthdate.toEpochMilli(),ConfigurationSetting.CLOCK.millis()) / (10 * ConfigurationSetting.SYNTHEA_TICK_PER_SECOND);
     }
     public int compareTo(Delayed o) {
         // 比较延迟时间，值越大优先级越低

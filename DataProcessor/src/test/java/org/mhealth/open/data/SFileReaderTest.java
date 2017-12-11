@@ -73,4 +73,9 @@ public class SFileReaderTest {
 
     }
 
+    @Test
+    public void patientTest() throws FileNotFoundException {
+        BufferedReader reader = new BufferedReader(new FileReader("/home/just/Documents/csv/patients.csv"));
+        reader.lines().map(line -> line.split(",")).forEach(array -> System.out.println(array[0]) );
+    }
 } 

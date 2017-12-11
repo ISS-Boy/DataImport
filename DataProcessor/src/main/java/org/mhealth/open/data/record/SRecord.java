@@ -37,8 +37,7 @@ public class SRecord implements Delayed{
             sdate = this.date;
         if (this.start!=null)
             sdate = this.start;
-//        return unit.convert(ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS) , TimeUnit.HOURS);
-        return ConfigurationSetting.SYNTHEA_CLOCK.instant().until(sdate, HOURS);
+        return Math.subtractExact(sdate.toEpochMilli(),ConfigurationSetting.CLOCK.millis()) / (10 * ConfigurationSetting.SYNTHEA_TICK_PER_SECOND);
     }
 
 
@@ -94,7 +93,4 @@ public class SRecord implements Delayed{
         return reasondescription;
     }
 
-    public SimpleDateFormat getDateFormat() {
-        return dateFormat;
-    }
 }

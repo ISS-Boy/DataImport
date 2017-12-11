@@ -31,12 +31,14 @@ public class Application {
     public static Map<String, BlockingQueue> queueMaps = ConfigurationSetting.getSimpleContainer();
     public static Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.getSyntheaContainer();
     public static void main(String[] args) throws InterruptedException {
+        System.setProperty("user.timezone","GMT");
+        // In order to start producer first
+        startupDataExportThreads();
 
         Collection<MDataReader> readers = startupReaderThreadsAndWait();
 
         startupMonitorThreadsAndWait(readers);
 
-        startupDataExportThreads();
 
         //Synthea数据读入数据到队列，再出队到文件测试
 
@@ -56,6 +58,7 @@ public class Application {
         syntheaReader.readDataInQueue();
 
         Collection<MDataReader> dataReaders = Arrays.asList(mHealthReader, syntheaReader);
+//        Collection<MDataReader> dataReaders = Arrays.asList( syntheaReader);
 
         // 真正开启reader
         logger.info("start reading");
@@ -74,11 +77,9 @@ public class Application {
     // 开启数据导出线程
     private static void startupDataExportThreads() {
         // 为队列设置消费线程
-        MConsumer mconsumer = new MConsumer();
-        mconsumer.consumeData();
-        SConsumer sconsumer = new SConsumer();
-        sconsumer.consumeData();
-        logger.info("关闭消费者线程");
+        new Thread (()-> new MConsumer().consumeData()).start();
+        new Thread (()-> new SConsumer().consumeData()).start();
+        logger.info("开启消费者线程");
 
     }
 

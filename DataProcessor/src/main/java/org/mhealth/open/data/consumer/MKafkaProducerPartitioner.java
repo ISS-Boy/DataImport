@@ -15,7 +15,6 @@ import org.mhealth.open.data.avro.MEvent;
  */
 public class MKafkaProducerPartitioner implements Partitioner {
 
-    private static final long MILLIS_OF_DAY = 5 * 60 * 1000L;
     private Logger logger = Logger.getLogger(MKafkaProducerPartitioner.class);
 
 
@@ -29,13 +28,14 @@ public class MKafkaProducerPartitioner implements Partitioner {
         List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
         int numPartitions = partitions.size();
         int partitionNum = 0;
+        int userCode ;
         try {
             MEvent e = ((MEvent) value);
-            int userCode = Math.abs(e.getUserId().hashCode());
-            int timeCode = (int) ((long) (e.get("timestamp")));
-            partitionNum = (int)((userCode + timeCode) / MILLIS_OF_DAY);//还要加一步，取天
+            userCode = Math.abs(e.getUserId().hashCode());
+            partitionNum = userCode ;
         }  catch (Exception e) {
-            partitionNum = ((MEvent) value).get("timestamp").hashCode();
+            logger.error(e);
+            partitionNum = ((MEvent) value).get("user_id").hashCode();
         }
         logger.info("the message sendTo topic:" + topic + " and the partitionNum:" + partitionNum % numPartitions);
         return Math.abs(partitionNum % numPartitions);

@@ -14,3 +14,5 @@
         }
     ]
 }
+//the key of the record is the-user-7201
+//the value is {"user_id": "the-user-7201", "timestamp": 1483273017000, "measures": {"systolic_blood_pressure": {"unit": "mmHg", "value": 116.81972}, "diastolic_blood_pressure": {"unit": "mmHg", "value": 69.789474}}}

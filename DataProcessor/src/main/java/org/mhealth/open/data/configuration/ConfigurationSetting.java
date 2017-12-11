@@ -65,13 +65,15 @@ public class ConfigurationSetting {
     public static final int SYNTHEA_TICK_PER_SECOND;
     public static final int CUSHION_TIME ;
 
-    public volatile static int repeat = 0;
+    // 数据重用次数
+    public volatile static int DATA_REPEAT_TIME = 0;
 
     static {
         // 读入properties
         ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();
         InputStream resource_in = classLoader.getResourceAsStream("conf.properties");
         Properties prop = new Properties();
+
 
         // 读入相应的数据
         String tmpDataRootPath = null;

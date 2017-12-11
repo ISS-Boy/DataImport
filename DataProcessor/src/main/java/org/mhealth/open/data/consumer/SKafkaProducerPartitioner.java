@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class SKafkaProducerPartitioner implements Partitioner {
 
-    private static final long MILLIS_OF_DAY = 5 * 60 * 1000L;
     private Logger logger = Logger.getLogger(SKafkaProducerPartitioner.class);
 
     public SKafkaProducerPartitioner() {
@@ -28,34 +27,19 @@ public class SKafkaProducerPartitioner implements Partitioner {
         int numPartitions = partitions.size();
         int partitionNum = 0;
         try {
-            String s= value.getClass().getName();
-            if(value instanceof SAllergie){
-                partitionNum = (int) ((long) ((SAllergie) value).get("timestamp") / MILLIS_OF_DAY);//还要加一步，取天
-            }
-            else if(value instanceof SPatient){
-                partitionNum = (int) ((long) ((SPatient) value).get("timestamp") / MILLIS_OF_DAY);//还要加一步，取天
-            }
-            else if(value instanceof SObservation){
-                partitionNum = (int) ((long) ((SObservation) value).get("timestamp") / MILLIS_OF_DAY);//还要加一步，取天
-            }
-            else {
-                partitionNum = (int) ((long) ((SLine) value).get("timestamp") / MILLIS_OF_DAY);//还要加一步，取天
+            if (value instanceof SAllergie) {
+                partitionNum =((SAllergie) value).getUserId().hashCode();
+            } else if (value instanceof SPatient) {
+                partitionNum = ((SPatient) value).getUserId().hashCode();
+            } else if (value instanceof SObservation) {
+                partitionNum =  ((SObservation) value).getUserId().hashCode();
+            } else {
+                partitionNum = ((SLine) value).getUserId().hashCode();
             }
         } catch (Exception e) {
-            if(value instanceof SAllergie){
-                partitionNum = ((SAllergie) value).get("timestamp").hashCode();
-            }
-            else if(value instanceof SPatient){
-                partitionNum = ((SPatient) value).get("timestamp").hashCode();
-            }
-            else if(value instanceof SObservation){
-                partitionNum = ((SObservation) value).get("timestamp").hashCode();
-            }
-            else {
-                partitionNum = ((SLine) value).get("timestamp").hashCode();
-            }
+           logger.error(e);
         }
-        logger.info("the message sendTo topic:" + topic + " and the partitionNum:" + partitionNum % numPartitions);
+        logger.info("the message sendTo topic:" + topic + " and the partitionNum:" + Math.abs(partitionNum % numPartitions));
         return Math.abs(partitionNum % numPartitions);
     }
 

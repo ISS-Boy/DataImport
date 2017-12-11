@@ -89,6 +89,7 @@ public class MFileReaderThread extends AbstractMThread {
                     String record = null;
                     long nextStartOffset = startOffset;
                     int frequency = ConfigurationSetting.measures.get(measureName).getReadingFrequency();
+                    logger.info(String.format("start to read data from: %s in %s",measureName,userGroupDir.getName()));
                     for (int i = 0; i < frequency && (record = raf.readLine()) != null; i++) {
 
                         // 这里应该有对应record的处理过程, 这里会有两种处理方式
@@ -117,7 +118,6 @@ public class MFileReaderThread extends AbstractMThread {
         }
         // 每次读一次文件，都应该判断是否全部读完
         end = finishFileCount == fileOffsetRecorder.keySet().size();
-//
         tags.forEach((s, b) -> {
             if (b)
                 logger.info("成功读取了一批"+userGroupDir.getName()+"-"+s+"的文件");

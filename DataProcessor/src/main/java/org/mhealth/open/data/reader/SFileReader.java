@@ -23,7 +23,6 @@ public class SFileReader extends MThreadController implements MDataReader {
 
     private String sdataRootPath = ConfigurationSetting.SDATA_ROOT_PATH;
     private List<SFileReaderThread> readers;
-    public final AtomicInteger CURRENT_READER_COUNT = new AtomicInteger(0);
 
 
     public SFileReader() {

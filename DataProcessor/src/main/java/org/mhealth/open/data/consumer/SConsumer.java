@@ -18,16 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SConsumer {
     private static Logger logger = Logger.getLogger(SConsumer.class);
-    private static Logger loggerAL = Logger.getLogger("allergies");
-    private static Logger loggerCA = Logger.getLogger("careplans");
-    private static Logger loggerCO = Logger.getLogger("conditions");
-    private static Logger loggerEN = Logger.getLogger("encounters");
-    private static Logger loggerIM = Logger.getLogger("immunizations");
-    private static Logger loggerME = Logger.getLogger("medications");
-    private static Logger loggerOB = Logger.getLogger("observations");
-    private static Logger loggerPA = Logger.getLogger("patients");
-    private static Logger loggerPR = Logger.getLogger("procedures");
-
 
 
     public static AtomicInteger written = new AtomicInteger(0);
@@ -41,40 +31,9 @@ public class SConsumer {
                 (name, queue) -> {
                   //指定数据发送到kafka终端
                 SProducer producer = new SKafkaProducer(name);
+                threadPool.execute(new SConsumerThread(queue, producer, logger));
                     //指定数据写入文件
 //                SProducer producer = new SFileProducer(name);
-
-                        switch (name) {
-                            case "allergies":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerAL));
-                                break;
-                            case "careplans":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerCA));
-                                break;
-                            case "conditions":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerCO));
-                                break;
-                            case "encounters":
-                                threadPool.execute(new SConsumerThread(queue,producer, loggerEN));
-                                break;
-                            case "immunizations":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerIM));
-                                break;
-                            case "medications":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerME));
-                                break;
-                            case "observations":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerOB));
-                                break;
-                            case "patients":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerPA));
-                                break;
-                            case "procedures":
-                                threadPool.execute(new SConsumerThread(queue, producer, loggerPR));
-                                break;
-                            default:
-                                break;
-                        }
                 });
 
 
@@ -83,7 +42,7 @@ public class SConsumer {
 
         // 任务执行结束或时间到期时关闭
         try {
-            threadPool.awaitTermination(7L, TimeUnit.DAYS);
+            threadPool.awaitTermination(1L, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {

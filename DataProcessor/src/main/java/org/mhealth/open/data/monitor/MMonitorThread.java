@@ -3,21 +3,12 @@ package org.mhealth.open.data.monitor;
 import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 import org.mhealth.open.data.configuration.MeasureConfiguration;
-import org.mhealth.open.data.reader.AbstractMThread;
 import org.mhealth.open.data.reader.MFileReader;
 import org.mhealth.open.data.reader.MFileReaderThread;
-import org.mhealth.open.data.reader.MRecord;
 
-import java.io.File;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.LockSupport;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by dujijun on 2017/10/5.
@@ -70,7 +61,7 @@ public class MMonitorThread extends MonitorThread {
             }
 
             reader.CURRENT_READER_COUNT.set(ConfigurationSetting.READER_COUNT.get());
-            ConfigurationSetting.repeat++;
+            ConfigurationSetting.DATA_REPEAT_TIME++;
             for (MFileReaderThread task : reader.getReaderThreads()) {
                 synchronized (task) {
                     task.notify();

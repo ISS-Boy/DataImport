@@ -7,12 +7,11 @@ import org.mhealth.open.data.avro.Measure;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
-
-import static java.time.temporal.ChronoUnit.NANOS;
 
 /**
  * for DataImport
@@ -40,7 +39,7 @@ public class MRecord implements Delayed {
 //        this.timestamp = System.currentTimeMillis();
 //    }
     private MEvent parse(String json) {
-        long timeOffsetMillis = ConfigurationSetting.DURATION*ConfigurationSetting.repeat;
+        long timeOffsetMillis = ConfigurationSetting.DURATION*ConfigurationSetting.DATA_REPEAT_TIME;
 
         Map<String, Measure> measures = new HashMap<>();
         MEvent mEvent = new MEvent();
