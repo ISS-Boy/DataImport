@@ -26,6 +26,10 @@ public final class ClockService implements Serializable {
 
     }
 
+    public Instant getStartDateTime() {
+        return startDateTime;
+    }
+
     public int getTickPerSecond() {
         return tickPerSecond;
     }

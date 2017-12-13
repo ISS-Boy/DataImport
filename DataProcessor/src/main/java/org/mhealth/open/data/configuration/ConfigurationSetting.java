@@ -68,6 +68,9 @@ public class ConfigurationSetting {
     // 数据重用次数
     public volatile static int DATA_REPEAT_TIME = 0;
 
+    // 经纬度信息数据根路径
+    public static final String LATILONG_DATA_PATH;
+
     static {
         // 读入properties
         ClassLoader classLoader = ConfigurationSetting.class.getClassLoader();
@@ -89,6 +92,7 @@ public class ConfigurationSetting {
         String tmpSyntheaStartTime=null,tmpSyntheaEndTime = null;
         int tmpSyntheaTickTime = 1;
         int tmpCushionTime = 0;
+        String tmpLatilongDataPath = null;
         try {
             prop.load(resource_in);
             tmpDataRootPath = prop.getProperty("DATA_ROOT_PATH");
@@ -112,6 +116,8 @@ public class ConfigurationSetting {
             tmpSyntheaStartTime = prop.getProperty("SyntheastartTime");
             tmpSyntheaEndTime = prop.getProperty("SyntheaendTime");
             tmpSyntheaTickTime = Integer.valueOf(prop.getProperty("SyntheatickPerSecond"));
+            tmpLatilongDataPath = prop.getProperty("LATILONG_DATA_PATH");
+
 
             String[] SymeasureNames = prop.getProperty("SyntheaNames").split(",");
             for (String name :SymeasureNames){
@@ -137,6 +143,7 @@ public class ConfigurationSetting {
         logger.info(SYNTHEA_CLOCK.instant());
         SYNTHEA_END_TIME = tmpSyntheaEndTime;
         DURATION = Instant.parse(tmpStartTime).until(Instant.parse(tmpEndTime), ChronoUnit.MILLIS);
+        LATILONG_DATA_PATH = tmpLatilongDataPath;
     }
 
     public static Map<String, BlockingQueue> getSimpleContainer() {
