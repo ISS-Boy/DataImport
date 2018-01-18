@@ -2,7 +2,9 @@ package org.mhealth.open.data.consumer;
 
 import org.mhealth.open.data.avro.LatitudeAndLongitude;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
+import org.mhealth.open.data.util.ClockService;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +30,9 @@ public class LatiLongSender implements Runnable {
     @Override
     public void run() {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.from(ConfigurationSetting.CLOCK.getStartDateTime()));
+        ClockService clock = ConfigurationSetting.CLOCK;
+        calendar.setTime(Date.from(clock.getStartDateTime()
+                .plus(clock.getTickPerSecond() * ConfigurationSetting.CUSHION_TIME, ChronoUnit.SECONDS)));
         LaLoProducer producer = new LaLoProducer();
         while (true) {
             long timestamp = calendar.getTimeInMillis();

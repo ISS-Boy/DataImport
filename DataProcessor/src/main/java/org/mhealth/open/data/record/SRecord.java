@@ -37,7 +37,7 @@ public class SRecord implements Delayed{
             sdate = this.date;
         if (this.start!=null)
             sdate = this.start;
-        return Math.subtractExact(sdate.toEpochMilli(),ConfigurationSetting.CLOCK.millis()) / (10 * ConfigurationSetting.SYNTHEA_TICK_PER_SECOND);
+        return Math.subtractExact(sdate.toEpochMilli(),ConfigurationSetting.SYNTHEA_CLOCK.millis()) / (10 * ConfigurationSetting.SYNTHEA_TICK_PER_SECOND);
     }
 
 

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * for DataImport
@@ -24,7 +25,7 @@ public class MConsumer {
     private static Logger loggerBF = Logger.getLogger("bodyFat");
 
 
-    public static AtomicInteger written = new AtomicInteger(0);
+    public static AtomicLong written = new AtomicLong(0);
 
     public void consumeData() {
 
@@ -36,8 +37,8 @@ public class MConsumer {
                     for (int i = 0; i < ConfigurationSetting.measures.get(name).getProducerNums(); i++) {
                         // 指定数据发送到kafka终端
                 MProducer producer = new MKafkaProducer();
-//                MProducer producer = new MFileProducer(name);
-//                threadPool.execute(new MConsumerThread(queueMaps.get(measureName), producer));
+
+                        // TODO remove switch and do all the stuff through log analyse
                         switch (name) {
                             case "blood-pressure":
                                 threadPool.execute(new MConsumerThread(queue, producer,loggerBP));

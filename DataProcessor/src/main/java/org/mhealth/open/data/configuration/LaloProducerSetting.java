@@ -17,7 +17,7 @@ public class LaloProducerSetting {
     public static Properties props = new Properties();
     private static final String BROKER_LIST = "192.168.222.226:9092";//,192.168.222.7:9092,192.168.222.9:9092,192.168.222.11:9092,192.168.222.12:9092";
     private static final String SCHEMA_REGISTRY_URL = "http://192.168.222.226:8081";
-    public static final String LALO_TOPIC = "latitude-and-longitude";
+    public static final String LALO_TOPIC = "latitude-longitude";
 
     static {
         try {

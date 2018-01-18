@@ -133,7 +133,7 @@ public class ConfigurationSetting {
         SYNTHEA_READER_CLASS = tmpSyntheaClass;
         TICK_PER_SECOND = tmpTickTime;
         CUSHION_TIME = tmpCushionTime;
-        CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime);
+        CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime,CUSHION_TIME);
         logger.info("initial clock: "+CLOCK.instant());
         END_TIME = tmpEndTime;
 

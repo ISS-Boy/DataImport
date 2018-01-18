@@ -49,11 +49,10 @@ public class MKafkaProducer implements MProducer {
                 logger.error("发送消息失败", e);
             }
 
-            logger.info(("The offset of the record we just sent is: " + metadata.offset()));
+            logger.info((String.format("The offset of %s we just sent is: %s",metadata.topic(),metadata.offset())));
         });
 
     }
-
 
 
     @Override

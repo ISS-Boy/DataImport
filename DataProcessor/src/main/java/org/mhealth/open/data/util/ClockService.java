@@ -20,10 +20,12 @@ public final class ClockService implements Serializable {
     private final int tickPerSecond;
 
     public ClockService(Instant startDateTime, int tickPerSecond) {
-        this.startDateTime = startDateTime.minus(ConfigurationSetting.CUSHION_TIME * tickPerSecond, ChronoUnit.SECONDS);
+        this(startDateTime,tickPerSecond,0);
+    }
+    public ClockService(Instant startDateTime,int tickPerSecond,int cushionTime){
+        this.startDateTime = startDateTime.minus(cushionTime * tickPerSecond, ChronoUnit.SECONDS);
         this.initialTimestamp = System.currentTimeMillis();
         this.tickPerSecond = tickPerSecond;
-
     }
 
     public Instant getStartDateTime() {
