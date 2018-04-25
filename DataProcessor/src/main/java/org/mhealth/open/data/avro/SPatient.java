@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class SPatient extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -5777937398884594314L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"SPatient\",\"namespace\":\"org.mhealth.open.data.avro\",\"fields\":[{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"user_id\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"birthdate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"deathdate\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"gender\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"race\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  private static final long serialVersionUID = 6383054889651678281L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"SPatient\",\"namespace\":\"org.mhealth.open.data.avro\",\"fields\":[{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"user_id\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"birthdate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"deathdate\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"gender\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"race\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"birthplace\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -58,6 +58,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
   @Deprecated public java.lang.String deathdate;
   @Deprecated public java.lang.String gender;
   @Deprecated public java.lang.String race;
+  @Deprecated public java.lang.String birthplace;
+  @Deprecated public java.lang.String address;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -75,8 +77,10 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
    * @param deathdate The new value for deathdate
    * @param gender The new value for gender
    * @param race The new value for race
+   * @param birthplace The new value for birthplace
+   * @param address The new value for address
    */
-  public SPatient(java.lang.Long timestamp, java.lang.String user_id, java.lang.String name, java.lang.String birthdate, java.lang.String deathdate, java.lang.String gender, java.lang.String race) {
+  public SPatient(java.lang.Long timestamp, java.lang.String user_id, java.lang.String name, java.lang.String birthdate, java.lang.String deathdate, java.lang.String gender, java.lang.String race, java.lang.String birthplace, java.lang.String address) {
     this.timestamp = timestamp;
     this.user_id = user_id;
     this.name = name;
@@ -84,6 +88,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
     this.deathdate = deathdate;
     this.gender = gender;
     this.race = race;
+    this.birthplace = birthplace;
+    this.address = address;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -97,6 +103,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
     case 4: return deathdate;
     case 5: return gender;
     case 6: return race;
+    case 7: return birthplace;
+    case 8: return address;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -112,6 +120,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
     case 4: deathdate = (java.lang.String)value$; break;
     case 5: gender = (java.lang.String)value$; break;
     case 6: race = (java.lang.String)value$; break;
+    case 7: birthplace = (java.lang.String)value$; break;
+    case 8: address = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -229,6 +239,38 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
   }
 
   /**
+   * Gets the value of the 'birthplace' field.
+   * @return The value of the 'birthplace' field.
+   */
+  public java.lang.String getBirthplace() {
+    return birthplace;
+  }
+
+  /**
+   * Sets the value of the 'birthplace' field.
+   * @param value the value to set.
+   */
+  public void setBirthplace(java.lang.String value) {
+    this.birthplace = value;
+  }
+
+  /**
+   * Gets the value of the 'address' field.
+   * @return The value of the 'address' field.
+   */
+  public java.lang.String getAddress() {
+    return address;
+  }
+
+  /**
+   * Sets the value of the 'address' field.
+   * @param value the value to set.
+   */
+  public void setAddress(java.lang.String value) {
+    this.address = value;
+  }
+
+  /**
    * Creates a new SPatient RecordBuilder.
    * @return A new SPatient RecordBuilder
    */
@@ -267,6 +309,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
     private java.lang.String deathdate;
     private java.lang.String gender;
     private java.lang.String race;
+    private java.lang.String birthplace;
+    private java.lang.String address;
 
     /** Creates a new Builder */
     private Builder() {
@@ -307,6 +351,14 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
         this.race = data().deepCopy(fields()[6].schema(), other.race);
         fieldSetFlags()[6] = true;
       }
+      if (isValidValue(fields()[7], other.birthplace)) {
+        this.birthplace = data().deepCopy(fields()[7].schema(), other.birthplace);
+        fieldSetFlags()[7] = true;
+      }
+      if (isValidValue(fields()[8], other.address)) {
+        this.address = data().deepCopy(fields()[8].schema(), other.address);
+        fieldSetFlags()[8] = true;
+      }
     }
 
     /**
@@ -342,6 +394,14 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
       if (isValidValue(fields()[6], other.race)) {
         this.race = data().deepCopy(fields()[6].schema(), other.race);
         fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.birthplace)) {
+        this.birthplace = data().deepCopy(fields()[7].schema(), other.birthplace);
+        fieldSetFlags()[7] = true;
+      }
+      if (isValidValue(fields()[8], other.address)) {
+        this.address = data().deepCopy(fields()[8].schema(), other.address);
+        fieldSetFlags()[8] = true;
       }
     }
 
@@ -617,6 +677,84 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
+    /**
+      * Gets the value of the 'birthplace' field.
+      * @return The value.
+      */
+    public java.lang.String getBirthplace() {
+      return birthplace;
+    }
+
+    /**
+      * Sets the value of the 'birthplace' field.
+      * @param value The value of 'birthplace'.
+      * @return This builder.
+      */
+    public org.mhealth.open.data.avro.SPatient.Builder setBirthplace(java.lang.String value) {
+      validate(fields()[7], value);
+      this.birthplace = value;
+      fieldSetFlags()[7] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'birthplace' field has been set.
+      * @return True if the 'birthplace' field has been set, false otherwise.
+      */
+    public boolean hasBirthplace() {
+      return fieldSetFlags()[7];
+    }
+
+
+    /**
+      * Clears the value of the 'birthplace' field.
+      * @return This builder.
+      */
+    public org.mhealth.open.data.avro.SPatient.Builder clearBirthplace() {
+      birthplace = null;
+      fieldSetFlags()[7] = false;
+      return this;
+    }
+
+    /**
+      * Gets the value of the 'address' field.
+      * @return The value.
+      */
+    public java.lang.String getAddress() {
+      return address;
+    }
+
+    /**
+      * Sets the value of the 'address' field.
+      * @param value The value of 'address'.
+      * @return This builder.
+      */
+    public org.mhealth.open.data.avro.SPatient.Builder setAddress(java.lang.String value) {
+      validate(fields()[8], value);
+      this.address = value;
+      fieldSetFlags()[8] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'address' field has been set.
+      * @return True if the 'address' field has been set, false otherwise.
+      */
+    public boolean hasAddress() {
+      return fieldSetFlags()[8];
+    }
+
+
+    /**
+      * Clears the value of the 'address' field.
+      * @return This builder.
+      */
+    public org.mhealth.open.data.avro.SPatient.Builder clearAddress() {
+      address = null;
+      fieldSetFlags()[8] = false;
+      return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public SPatient build() {
@@ -629,6 +767,8 @@ public class SPatient extends org.apache.avro.specific.SpecificRecordBase implem
         record.deathdate = fieldSetFlags()[4] ? this.deathdate : (java.lang.String) defaultValue(fields()[4]);
         record.gender = fieldSetFlags()[5] ? this.gender : (java.lang.String) defaultValue(fields()[5]);
         record.race = fieldSetFlags()[6] ? this.race : (java.lang.String) defaultValue(fields()[6]);
+        record.birthplace = fieldSetFlags()[7] ? this.birthplace : (java.lang.String) defaultValue(fields()[7]);
+        record.address = fieldSetFlags()[8] ? this.address : (java.lang.String) defaultValue(fields()[8]);
         return record;
       } catch (java.lang.Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

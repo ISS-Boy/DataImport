@@ -9,6 +9,8 @@
         {"name": "birthdate", "type": "string"},
         {"name": "deathdate", "type": ["string","null"]},
         {"name": "gender", "type": "string"},
-        {"name": "race", "type": "string"}
+        {"name": "race", "type": "string"},
+        {"name": "birthplace","type":"string"},
+        {"name": "address","type":"string"}
     ]
 }

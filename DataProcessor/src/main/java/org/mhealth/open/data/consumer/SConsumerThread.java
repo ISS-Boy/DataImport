@@ -45,8 +45,9 @@ public class SConsumerThread implements Runnable {
                     Patients patients = (Patients) record;
                     producer.produce2Dest(patients);
                 }
-                else
+                else{
                     producer.produce2Dest(record);
+                }
 
                 logger.info("consume: " + record.getDescription() + ", queueSize_now: " + measureQueue.size() + ", recordNum: " + SConsumer.written.incrementAndGet());
             }

@@ -31,7 +31,7 @@ public class SKafkaProducer implements SProducer{
             kafkaProducer3 = new KafkaProducer<String, SPatient>(SProducerSetting.props);
         }
         else {
-            kafkaProducer4 = new KafkaProducer<String, SLine>(SProducerSetting.props);
+            kafkaProducer4 = new KafkaProducer<>(SProducerSetting.props);
         }
     }
 
@@ -65,7 +65,9 @@ public class SKafkaProducer implements SProducer{
 
     @Override
     public void produce2Dest(Patients record) {
-        SPatient avroMsg = new SPatient(record.getTimestamp(),record.getUserId(),record.getName(),record.getBirthdate().toString(),(record.getDeathdate()==null? null:record.getDeathdate().toString()),record.getGender(),record.getRace());
+        SPatient avroMsg = new SPatient(record.getTimestamp(),record.getUserId(),record.getName(),
+                record.getBirthdate().toString(),(record.getDeathdate()==null? null:record.getDeathdate().toString()),
+                record.getGender(),record.getRace(),record.getBirthplace(),record.getAddress());
         ProducerRecord<String, SPatient> message = new ProducerRecord<String, SPatient>("patient",
                 record.getUserId(), avroMsg);
         kafkaProducer3.send(message, (RecordMetadata metadata, Exception e) -> {
