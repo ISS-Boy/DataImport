@@ -192,8 +192,8 @@ public class LatitudeAndLongitude extends org.apache.avro.specific.SpecificRecor
   }
 
   public void nextRandomValue() {
-    this.latitude += (Math.random()* 1.2 - 0.6);
-    this.longitude += (Math.random() * 1.2 - 0.6);
+    this.latitude += (Math.random() * 0.002 - 0.001);
+    this.longitude += (Math.random() * 0.002 - 0.001);
   }
 
   /**
