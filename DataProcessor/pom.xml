@@ -21,7 +21,6 @@
 
     </properties>
 
-
     <build>
         <plugins>
 
@@ -82,6 +81,7 @@
                 <configuration>
                     <source>${java.version}</source><!--源码使用的jdk版本 -->
                     <target>${java.version}</target>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 

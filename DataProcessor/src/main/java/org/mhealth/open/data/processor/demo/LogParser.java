@@ -14,10 +14,9 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
 
+
 /**
- * for DataImport
- *
- * @author {USER} on 17-10-21
+ * 简单的日志分析(word-count)工具
  */
 public class LogParser {
     public static void main(String[] args) throws IOException {
@@ -30,7 +29,8 @@ public class LogParser {
 
 
             Path path = Paths.get(fileName[i]);
-            Map<String, Long> count = Files.lines(path).map(line -> new AbstractMap.SimpleEntry<>(line.split(" ")[1], 1))
+            Map<String, Long> count = Files.lines(path)
+                    .map(line -> new AbstractMap.SimpleEntry<>(line.split(" ")[1], 1))
                     .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey, counting()));
 
             count.forEach((k, v) -> {

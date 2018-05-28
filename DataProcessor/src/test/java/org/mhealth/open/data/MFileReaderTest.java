@@ -11,7 +11,11 @@ import org.mhealth.open.data.avro.Measure;
 import org.mhealth.open.data.util.ClockService;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -261,9 +265,12 @@ public class MFileReaderTest {
     }
 
     @Test
-    public void testClockService() throws InterruptedException {
-        ClockService cs = new ClockService(Instant.parse("1900-01-01T12:00:00Z"), 10);
-        System.out.println("当前时间是:" + cs.instant());
+    public void testClockService() throws InterruptedException, ParseException {
+        System.out.println(Instant.now().minusMillis(Instant.parse("2018-05-08T21:47:04Z").toEpochMilli())
+                .truncatedTo(ChronoUnit.MINUTES).toEpochMilli());
+        System.out.println(Duration.parse("P1D").toMillis());
+        ClockService cs = new ClockService(Instant.parse("2018-05-08T21:47:04Z"), 10);
+        System.out.println("当前时间是:" + cs.instant().toEpochMilli());//946728000000
         Thread.sleep(1000);
         System.out.println("过了一秒后:" + cs.instant());
         for (int i = 0; i < 10; i++) {

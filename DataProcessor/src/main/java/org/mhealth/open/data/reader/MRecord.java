@@ -22,24 +22,21 @@ public class MRecord implements Delayed {
 
     private MEvent event;
     private String measureName;
-    private long timestamp;
 
+
+    @Deprecated
     private boolean poisonFlag;
 
     public MRecord(String msg, String measureName) {
         this.measureName = measureName;
         this.event = parse(msg);
 
-        timestamp = System.currentTimeMillis();
     }
 
-//    public MRecord(boolean flag, Instant date) {
-//        this.poisonFlag = flag;
-//        event.setTimestamp(date.toEpochMilli());
-//        this.timestamp = System.currentTimeMillis();
-//    }
     private MEvent parse(String json) {
-        long timeOffsetMillis = ConfigurationSetting.DURATION*ConfigurationSetting.DATA_REPEAT_TIME;
+        // 通过加上时间偏移量,计算得出"当前"时间,从而实现复用
+        long timeOffsetMillis = ConfigurationSetting.TRUNCATE_OFFSET_TIME +
+                                ConfigurationSetting.DURATION * ConfigurationSetting.DATA_REPEAT_TIME;
 
         Map<String, Measure> measures = new HashMap<>();
         MEvent mEvent = new MEvent();
@@ -52,10 +49,12 @@ public class MRecord implements Delayed {
         body.forEach((key, values) -> {
             if (key.equals("effective_time_frame")) {
                 if (((JSONObject) values).containsKey("date_time")) {
-                    mEvent.setTimestamp(((JSONObject) values).getDate("date_time").getTime()+timeOffsetMillis);
+                    mEvent.setTimestamp(((JSONObject) values).getDate("date_time").getTime() + timeOffsetMillis);
                 } else {
-                    mEvent.setTimestamp(((JSONObject) values).getJSONObject("time_interval").getDate("start_date_time").getTime()+timeOffsetMillis);
-                    measures.put("duration", construct(((JSONObject) values).getJSONObject("time_interval").getJSONObject("duration")));
+                    mEvent.setTimestamp(((JSONObject) values).getJSONObject("time_interval")
+                                                .getDate("start_date_time").getTime() + timeOffsetMillis);
+                    measures.put("duration", construct(((JSONObject) values)
+                            .getJSONObject("time_interval").getJSONObject("duration")));
                 }
             } else if (key.equals("sleep_duration")) {
                 measures.putIfAbsent("duration", construct(values));
@@ -66,6 +65,7 @@ public class MRecord implements Delayed {
         mEvent.setMeasures(measures);
         return mEvent;
     }
+
     private Measure construct(Object obj) {
         Measure measure = new Measure("", 0F);
         if (obj instanceof JSONObject) {
@@ -90,21 +90,15 @@ public class MRecord implements Delayed {
         return measureName;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-//    public boolean isPoisonPill() {
-//        return poisonFlag;
-//    }
-
 
     @Override
     public long getDelay(TimeUnit unit) {
         // 计算数据时间与"当前"时间的差值，以此作为延迟时间返回
         // 延迟时间为负数或零时被取出
-        return unit.convert(Math.subtractExact(this.event.getTimestamp(),ConfigurationSetting.CLOCK.millis()) / (2 * ConfigurationSetting.CLOCK.getTickPerSecond()),
-                TimeUnit.MILLISECONDS);
+//        return unit.convert(Math.subtractExact(this.event.getTimestamp(), ConfigurationSetting.CLOCK.millis())
+//                            / ConfigurationSetting.CLOCK.getTickPerSecond(),
+//                TimeUnit.MILLISECONDS);
+        return unit.convert(Math.subtractExact(this.event.getTimestamp(), System.currentTimeMillis()), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -119,7 +113,6 @@ public class MRecord implements Delayed {
         sb.append("measure:").append(measureName)
                 .append(", date:").append(getDate())
                 .append(", user_id:").append(event.getUserId())
-                .append(", timestamp:").append(Instant.ofEpochMilli(timestamp))
                 .append("]");
         return sb.toString();
     }

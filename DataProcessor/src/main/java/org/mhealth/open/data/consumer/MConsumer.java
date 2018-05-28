@@ -4,13 +4,9 @@ import org.apache.log4j.Logger;
 import org.mhealth.open.data.Application;
 import org.mhealth.open.data.configuration.ConfigurationSetting;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -38,7 +34,7 @@ public class MConsumer {
                         // 指定数据发送到kafka终端
                 MProducer producer = new MKafkaProducer();
 
-                        // TODO remove switch and do all the stuff through log analyse
+                        // TODO 用来将不同metric的log分开,最好删掉switch,使用日志分析工具来做.
                         switch (name) {
                             case "blood-pressure":
                                 threadPool.execute(new MConsumerThread(queue, producer,loggerBP));

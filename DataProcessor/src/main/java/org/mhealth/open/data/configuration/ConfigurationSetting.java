@@ -1,7 +1,5 @@
 package org.mhealth.open.data.configuration;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 import org.mhealth.open.data.reader.MDataReader;
 import org.mhealth.open.data.reader.MRecord;
@@ -10,7 +8,6 @@ import org.mhealth.open.data.util.ClockService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -50,23 +47,27 @@ public class ConfigurationSetting {
     // 时钟
     public static final ClockService CLOCK;
     public static final ClockService SYNTHEA_CLOCK;
-    // 终止时间->毒丸
-    public static final String END_TIME;
+
+    // @Deprecated 终止时间->毒丸
+    // public static final String END_TIME;
     public static final String SYNTHEA_END_TIME;
 
-
-    public static final Long DURATION ;
+    public static final Long DURATION;
 
     // 用于记录reader的个数
     public static final AtomicInteger READER_COUNT = new AtomicInteger(0);
 
     // 时钟每秒tick次数
     public static final int TICK_PER_SECOND;
-    public static final int SYNTHEA_TICK_PER_SECOND;
-    public static final int CUSHION_TIME ;
+    public static final int CUSHION_TIME;
 
-    // 数据重用次数
-    public volatile static int DATA_REPEAT_TIME = 0;
+    public static final int SYNTHEA_TICK_PER_SECOND;
+
+    // 数据重用次数,用来计算时间偏移量,初始化为0
+    public static int DATA_REPEAT_TIME = 0;
+    // 截断后的当前时间与数据时间的差,与repeat_time合起来为总偏移量,
+    // 为了方便新人部署该项目,不用再每次生成新数据,增设该字段.
+    public static long TRUNCATE_OFFSET_TIME;
 
     // 经纬度信息数据根路径
     public static final String LATILONG_DATA_PATH;
@@ -84,12 +85,12 @@ public class ConfigurationSetting {
         int tmpMaxQueueSize = 0;
         Class tmpMHealthReaderClass = null;
         //Class tmpSyntheaClass = null;
-        String tmpStartTime=null,tmpEndTime = null;
+        String tmpStartTime = null, duration = null;
         int tmpTickTime = 1;
 
         String tmpSyntheaDataRootPath = null;
         Class tmpSyntheaClass = null;
-        String tmpSyntheaStartTime=null,tmpSyntheaEndTime = null;
+        String tmpSyntheaStartTime = null, tmpSyntheaEndTime = null;
         int tmpSyntheaTickTime = 1;
         int tmpCushionTime = 0;
         String tmpLatilongDataPath = null;
@@ -100,7 +101,8 @@ public class ConfigurationSetting {
             tmpMaxQueueSize = Integer.valueOf(prop.getProperty("MAX_QUEUE_SIZE"));
             tmpMHealthReaderClass = Class.forName(prop.getProperty("MHEALTH_READER_CLASS_NAME"));
             tmpStartTime = prop.getProperty("startTime");
-            tmpEndTime = prop.getProperty("endTime");
+            duration = prop.getProperty("duration");
+
             tmpTickTime = Integer.valueOf(prop.getProperty("tickPerSecond"));
             tmpCushionTime = Integer.valueOf(prop.getProperty("cushionTime"));
             // 这里开始读入measure相关配置项
@@ -108,8 +110,8 @@ public class ConfigurationSetting {
             for (String name : measureNames) {
                 int readingFrequency = Integer.valueOf(prop.getProperty(name + ".readingFrequency"));
                 float queueImportThreshold = Float.valueOf(prop.getProperty(name + ".queueImportThreshold"));
-                int producerNums = Integer.valueOf(prop.getProperty(name+".producerNums"));
-                measures.put(name, new MeasureConfiguration(name, readingFrequency, queueImportThreshold,producerNums));
+                int producerNums = Integer.valueOf(prop.getProperty(name + ".producerNums"));
+                measures.put(name, new MeasureConfiguration(name, readingFrequency, queueImportThreshold, producerNums));
             }
             tmpSyntheaDataRootPath = prop.getProperty("SDATA_ROOT_PATH");
             tmpSyntheaClass = Class.forName(prop.getProperty("SYNTHRA_READER_CLASS_NAME"));
@@ -120,7 +122,7 @@ public class ConfigurationSetting {
 
 
             String[] SymeasureNames = prop.getProperty("SyntheaNames").split(",");
-            for (String name :SymeasureNames){
+            for (String name : SymeasureNames) {
                 symeasures.add(name);
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -131,18 +133,21 @@ public class ConfigurationSetting {
         MAX_QUEUE_SIZE = tmpMaxQueueSize;
         MHEALTH_READER_CLASS = tmpMHealthReaderClass;
         SYNTHEA_READER_CLASS = tmpSyntheaClass;
+
         TICK_PER_SECOND = tmpTickTime;
         CUSHION_TIME = tmpCushionTime;
-        CLOCK = new ClockService(Instant.parse(tmpStartTime),tmpTickTime,CUSHION_TIME);
-        logger.info("initial clock: "+CLOCK.instant());
-        END_TIME = tmpEndTime;
+        CLOCK = new ClockService(Instant.parse(tmpStartTime), tmpTickTime, CUSHION_TIME);
+
+        TRUNCATE_OFFSET_TIME = Instant.now().minusMillis(Instant.parse(tmpStartTime).toEpochMilli())
+                .truncatedTo(ChronoUnit.MINUTES).toEpochMilli() + 60_000 * 2;
+        logger.info("initial clock: " + CLOCK.instant());
 
         SDATA_ROOT_PATH = tmpSyntheaDataRootPath;
         SYNTHEA_TICK_PER_SECOND = tmpSyntheaTickTime;
-        SYNTHEA_CLOCK = new ClockService(Instant.parse(tmpSyntheaStartTime),tmpSyntheaTickTime);
+        SYNTHEA_CLOCK = new ClockService(Instant.parse(tmpSyntheaStartTime), tmpSyntheaTickTime);
         logger.info(SYNTHEA_CLOCK.instant());
         SYNTHEA_END_TIME = tmpSyntheaEndTime;
-        DURATION = Instant.parse(tmpStartTime).until(Instant.parse(tmpEndTime), ChronoUnit.MILLIS);
+        DURATION = Duration.parse(duration).toMillis();
         LATILONG_DATA_PATH = tmpLatilongDataPath;
     }
 
@@ -155,6 +160,7 @@ public class ConfigurationSetting {
         );
         return queueMaps;
     }
+
     //初始化Synthea容器
     public static Map<String, BlockingQueue> getSyntheaContainer() {
 

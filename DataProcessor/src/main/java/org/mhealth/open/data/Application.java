@@ -27,13 +27,15 @@ public class Application {
      * 2、开启reader线程，并等待全部开启
      * 3、开启监控队列线程，并等待全部开启
      * 4、等到reader线程全部开启之后开启处理线程
+     *
      * @param args
      */
     private static Logger logger = Logger.getLogger(Application.class);
     public static Map<String, BlockingQueue> queueMaps = ConfigurationSetting.getSimpleContainer();
     public static Map<String, BlockingQueue> squeueMaps = ConfigurationSetting.getSyntheaContainer();
+
     public static void main(String[] args) throws InterruptedException, ExecutionException, IOException, TimeoutException {
-        System.setProperty("user.timezone","GMT");
+        System.setProperty("user.timezone", "GMT+8");
         // In order to start producer first
         startupDataExportThreads();
 
@@ -58,6 +60,7 @@ public class Application {
 //        startupSDataExportThreads();
 
     }
+
     // 开启读数据进程并等待
     private static Collection<MDataReader> startupReaderThreadsAndWait() throws InterruptedException {
         MDataReaderFactory factory = new MDataReaderFactory();
@@ -65,12 +68,13 @@ public class Application {
         MDataReader mHealthReader = factory.getReader(ConfigurationSetting.MHEALTH_READER_CLASS);
         mHealthReader.readDataInQueue();
 
+        // synthea静态数据目前已持久化在kafka中,可以关闭synthea导入
         // 启动SyntheaReader
-        MDataReader syntheaReader = factory.getReader(ConfigurationSetting.SYNTHEA_READER_CLASS);
-        syntheaReader.readDataInQueue();
+//        MDataReader syntheaReader = factory.getReader(ConfigurationSetting.SYNTHEA_READER_CLASS);
+//        syntheaReader.readDataInQueue();
 
-        Collection<MDataReader> dataReaders = Arrays.asList(mHealthReader, syntheaReader);
-//        Collection<MDataReader> dataReaders = Arrays.asList( syntheaReader);
+//        Collection<MDataReader> dataReaders = Arrays.asList(mHealthReader, syntheaReader);
+        Collection<MDataReader> dataReaders = Arrays.asList(mHealthReader);
 
         // 真正开启reader
         logger.info("start reading");
@@ -89,8 +93,8 @@ public class Application {
     // 开启数据导出线程
     private static void startupDataExportThreads() {
         // 为队列设置消费线程
-        new Thread (()-> new MConsumer().consumeData()).start();
-        new Thread (()-> new SConsumer().consumeData()).start();
+        new Thread(() -> new MConsumer().consumeData()).start();
+//        new Thread (()-> new SConsumer().consumeData()).start();
         logger.info("开启消费者线程");
 
     }

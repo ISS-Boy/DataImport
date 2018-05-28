@@ -14,8 +14,8 @@ import java.util.Properties;
  *
  * @author just on 2017/10/10.
  */
-// TODO 异步：不同Measure不同配置,还是全部同步发送
-// TODO 确定后写成配置文件导入
+
+// TODO : 通过配置文件读入
 public class ProducerSetting {
     //    public static final Map<String,Properties> propsMap = new HashMap<>();
     public static Properties props = new Properties();
