@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
- * 生产环境中使用System.currentTime直接来表示当前时间,该类将仅供测试使用
+ * 生产环境中使用System.currentTime直接来表示当前时钟,该类将仅供测试使用
  * 自定义时钟，通过tickPerSecond配置速度
  */
 @Deprecated
